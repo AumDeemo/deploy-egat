@@ -4,10 +4,10 @@
             <div class="card-body">
                 <div class="flex justify-center">
                     <div class="flex">
-                        <img src="https://www.egat.co.th/home/en/wp-content/uploads/2024/03/engy-30.png" alt="logo"
+                        <img src="https://www.egat.co.th/home/en/wp-content/uploads/2024/03/engy-30.png " alt="logo"
                             class=" w-16">
                         <div class="flex items-end">
-                            <p class="text-2xl font-semibold">เข้าสู่ระบบ</p>
+                            <p class="text-2xl font-semibold inline-block select-none">เข้าสู่ระบบ</p>
                         </div>
                     </div>
                 </div>
@@ -16,11 +16,11 @@
 
                 <div class="">
                     <form @submit.prevent="login">
-                        <div class="form-control">
-                            <label>ชื่อผู้ใข้</label>
+                        <div class="form-control select-none">
+                            <label>ชื่อผู้ใช้</label>
                             <input v-model="username" type="email" placeholder="" class="input input-bordered" />
                         </div>
-                        <div class="form-control mt-5">
+                        <div class="form-control mt-5 select-none">
                             <label>รหัสผ่าน</label>
                             <input v-model="password" type="password" placeholder="" class="input input-bordered" />
                             <p v-if="loginError" class="text-red-500 mt-1">{{ loginError }}</p>
@@ -33,7 +33,7 @@
 
                 <RouterLink to="/register" class=" flex justify-center">
                     <div class="flex justify-center bg-black p-2 rounded-xl">
-                        <p class="text-white text-sm">สมัครสมาชิก</p>
+                        <p class="text-white text-sm select-none">สมัครสมาชิก </p>
                     </div>
                 </RouterLink>
             </div>
