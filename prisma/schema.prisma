@@ -4,7 +4,8 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("POSTGRES_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 model user {
@@ -13,6 +14,15 @@ model user {
   password    String
   fullname    String?
   role        String   @default("user")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model material {
+  id      Int   @id @default(autoincrement())
+  name    String
+  partnumber    String?
+  totalAmount   Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

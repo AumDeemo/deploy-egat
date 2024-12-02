@@ -4,7 +4,7 @@ import adminLayouts from '~/layouts/adminLayouts.vue';
 
 <template>
     <adminLayouts>
-        <h1>Dashboard</h1>
+        sparepartslist
     </adminLayouts>
 </template>
 
