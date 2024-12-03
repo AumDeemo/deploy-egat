@@ -26,6 +26,8 @@
                         <p class="text-base text-orange-400 ml-2">ไฟล์เอกสาร </p>
                     </RouterLink>
 
+                    
+
                 </div>
             </div>
         </div>
@@ -51,7 +53,7 @@
                         <p class="text-base select-none text-zinc-600 ml-2">ไฟล์เอกสาร </p>
                     </RouterLink>
 
-                    <!-- <ul class="menu bg-base-100 rounded-box w-70 mt-2">
+                    <ul class="menu bg-base-100 rounded-box w-70 mt-2">
                         <li>
                             <h2 class="menu-title font-light text-zinc-500 text-center text-base">ข้อมูลภายในเว็บ</h2>
                             <ul>
@@ -63,12 +65,12 @@
 
                             </ul>
                         </li>
-                    </ul> -->
+                    </ul>
 
                 </div>
 
-                <div class="h-[60%] flex items-end mt-10">
-                    <div class="bg-red-400 w-full h-20 rounded-b-lg cursor-pointer select-none">
+                <div class="h-[60%] flex items-end">
+                    <div @click="authStore.logout()" class="bg-red-400 w-full h-20 rounded-b-lg cursor-pointer select-none">
                         <div class="flex gap-2 justify-center items-center">
                             <div class="mt-7">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -94,6 +96,9 @@
 
 <script setup>
 import { LogoutIcon } from "@vue-hero-icons/outline"
+import { useAuthStore } from "#build/imports";
+
+const authStore = useAuthStore()
 
 const mobileNavOpen = ref(false);
 

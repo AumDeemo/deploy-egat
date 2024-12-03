@@ -15,8 +15,10 @@
                 <div class="form-control select-none">
                     <label class="label flex items-center">
                         <!-- ไอคอน -->
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                         </svg>
                         <p class="text-black">อีเมลผู้ใช้งาน</p>
                     </label>
@@ -26,31 +28,51 @@
                 <div class="form-control select-none">
                     <label class="label flex items-center">
                         <!-- ไอคอน -->
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-700 mr-1">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                         </svg>
-                        <p class="text-black">รหัสผ่าน</p>
+                        <p class="text-black">ชื่อ - นามสกุล</p>
                     </label>
-                    <input v-model="password" type="password" placeholder="กรุณากรอกรหัสผ่าน" class="input input-bordered" />
+                    <input v-model="fullname" type="text" placeholder="กรุณากรอกชื่อเต็ม" class="input input-bordered" />
                 </div>
 
                 <div class="form-control select-none">
                     <label class="label flex items-center">
                         <!-- ไอคอน -->
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-700 mr-1">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-5 h-5 text-gray-700 mr-1">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
                         </svg>
-                    <p class="text-black">ยืนยันรหัสผ่าน</p>
+                        <p class="text-black">รหัสผ่าน</p>
+                    </label>
+                    <input v-model="password" type="password" placeholder="กรุณากรอกรหัสผ่าน"
+                        class="input input-bordered" />
+                </div>
+
+                <div class="form-control select-none">
+                    <label class="label flex items-center">
+                        <!-- ไอคอน -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-5 h-5 text-gray-700 mr-1">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+                        </svg>
+                        <p class="text-black">ยืนยันรหัสผ่าน</p>
                     </label>
                     <input v-model="confirmPassword" type="password" placeholder="กรุณากรอกรหัสผ่าน"
                         class="input input-bordered" />
                 </div>
 
                 <div class="form-control mt-4">
-                    <button type="submit" class="btn btn-primary"> 
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                     <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
-                     </svg>สมัครสมาชิก</button>
+                    <button type="submit" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                        </svg>สมัครสมาชิก</button>
                 </div>
 
                 <RouterLink to="/login" class=" flex justify-center">
@@ -72,6 +94,7 @@ import { UserIcon } from "@vue-hero-icons/outline"
 const username = ref('');
 const password = ref('');
 const confirmPassword = ref('');
+const fullname = ref('')
 const router = useRouter();
 
 const register = async () => {
@@ -83,7 +106,7 @@ const register = async () => {
     try {
         const response = await $fetch('/api/auth/register', {
             method: 'POST',
-            body: { username: username.value, password: password.value, confirmPassword: confirmPassword.value }
+            body: { username: username.value, password: password.value, confirmPassword: confirmPassword.value , fullname: fullname.value }
         });
         console.log('data : ', response)
         router.push('/login');
@@ -97,14 +120,19 @@ const register = async () => {
 .font-prompt {
     font-family: 'Prompt', sans-serif !important;
 }
+
 .label {
-  display: flex;
-  align-items: center;
+    display: flex;
+    align-items: center;
 }
+
 .label svg {
-  margin-right: 0.25rem; /* ระยะห่างประมาณ 1 spacebar */
+    margin-right: 0.25rem;
+    /* ระยะห่างประมาณ 1 spacebar */
 }
+
 .input {
-  padding-left: 1rem; /* เพิ่ม padding ทางซ้ายเพื่อไม่ให้ข้อความทับกับไอคอน */
+    padding-left: 1rem;
+    /* เพิ่ม padding ทางซ้ายเพื่อไม่ให้ข้อความทับกับไอคอน */
 }
 </style>

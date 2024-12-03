@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
-    const { username, password, confirmPassword } = await readBody(event);
+    const { username, password, confirmPassword, fullname } = await readBody(event);
 
     if (password !== confirmPassword) {
         throw createError({
@@ -33,6 +33,7 @@ export default defineEventHandler(async (event) => {
         data: {
             username,
             password: hashedPassword,
+            fullname
         },
     });
 

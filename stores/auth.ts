@@ -65,7 +65,7 @@ export const useAuthStore = defineStore('auth', () => {
             localStorage.removeItem('restaurantId');
         }
 
-        router.push('/');
+        router.push('/login');
     };
 
     const isAdmin = computed(() => user.value?.role === 'admin');
