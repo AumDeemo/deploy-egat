@@ -17,12 +17,12 @@
                 <div class="">
                     <form @submit.prevent="login">
                         <div class="form-control select-none">
-                            <label>ชื่อผู้ใช้</label>
-                            <input v-model="username" type="email" placeholder="" class="input input-bordered" />
+                            <label>อีเมล</label>
+                            <input v-model="username" type="email" placeholder="กรอกอีเมล" class="input input-bordered" />
                         </div>
                         <div class="form-control mt-5 select-none">
                             <label>รหัสผ่าน</label>
-                            <input v-model="password" type="password" placeholder="" class="input input-bordered" />
+                            <input v-model="password" type="password" placeholder="กรอกรหัสผ่าน" class="input input-bordered" />
                             <p v-if="loginError" class="text-red-500 mt-1">{{ loginError }}</p>
                         </div>
                         <div class="form-control mt-5">
