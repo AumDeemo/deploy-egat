@@ -25,6 +25,27 @@ model material {
   totalAmount   Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  importHistory ImportHistory[]
+  exportHistory ExportHistory[]
+}
+
+model ImportHistory {
+  id         Int      @id @default(autoincrement())
+  materialId Int
+  
+  materials   material @relation(fields: [materialId], references: [id])
+  quantity   Float
+  date       DateTime @default(now())
+}
+
+model ExportHistory {
+  id         Int      @id @default(autoincrement())
+  materialId Int
+
+  materials   material @relation(fields: [materialId], references: [id])
+  quantity   Float
+  date       DateTime @default(now())
 }
 
 
