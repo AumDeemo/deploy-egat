@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import adminLayouts from '~/layouts/adminLayouts.vue'
 
-// State for materials and modals
 const materials = ref([])
 const selectedMaterial = ref(null)
 const modalType = ref(null)
@@ -29,14 +28,12 @@ const fetchMaterials = async () => {
     }
 }
 
-// Open modal with specific type and material
 const openModal = (type, material) => {
     modalType.value = type
     selectedMaterial.value = material
     quantity.value = ''
 }
 
-// Close modal
 const closeModal = () => {
     modalType.value = null
     selectedMaterial.value = null
@@ -51,7 +48,6 @@ watch(selectedMaterial, (newValue) => {
     console.log('selectedMaterial.value.id :', newValue)
 })
 
-// Handle material actions (import/export)
 const handleMaterialAction = async () => {
     if (!selectedMaterial.value || !quantity.value) return
 
@@ -79,7 +75,6 @@ const handleMaterialAction = async () => {
     }
 }
 
-// Edit material
 const handleEditMaterial = async () => {
     if (!selectedMaterial.value) return
 
@@ -105,7 +100,6 @@ const handleEditMaterial = async () => {
     }
 }
 
-// Lifecycle hook
 onMounted(async () => {
     await fetchMaterials()
 })

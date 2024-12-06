@@ -7,11 +7,9 @@ export default defineEventHandler(async (event) => {
 
   if (method === 'POST') {
     try {
-      // Read the request body
       const body = await readBody(event);
       const { materialId, quantity, type } = body;
 
-      // Validate input
       if (!materialId || !quantity || !type) {
         throw createError({
           statusCode: 400,
@@ -19,7 +17,6 @@ export default defineEventHandler(async (event) => {
         });
       }
 
-      // Find the material
       const material = await prisma.material.findUnique({
         where: { id: materialId }
       });
@@ -31,7 +28,6 @@ export default defineEventHandler(async (event) => {
         });
       }
 
-      // Perform action based on type
       let updatedMaterial;
       if (type === 'import') {
         // Add to total amount
@@ -39,7 +35,6 @@ export default defineEventHandler(async (event) => {
           where: { id: materialId },
           data: { 
             totalAmount: material.totalAmount + quantity,
-            // Optional: You might want to log the import
             importHistory: {
               create: {
                 quantity,
@@ -49,7 +44,6 @@ export default defineEventHandler(async (event) => {
           }
         });
       } else if (type === 'export') {
-        // Check if there's enough quantity
         if (material.totalAmount < quantity) {
           throw createError({
             statusCode: 400,
@@ -57,12 +51,10 @@ export default defineEventHandler(async (event) => {
           });
         }
 
-        // Subtract from total amount
         updatedMaterial = await prisma.material.update({
           where: { id: materialId },
           data: { 
             totalAmount: material.totalAmount - quantity,
-            // Optional: You might want to log the export
             exportHistory: {
               create: {
                 quantity,
