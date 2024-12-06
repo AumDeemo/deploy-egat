@@ -15,7 +15,22 @@ const MODAL_TYPES = {
     EDIT: 'edit'
 }
 
-// Fetch materials
+const materialHistory = ref({
+    importHistory: [],
+    exportHistory: []
+})
+
+const fetchMaterialHistory = async (materialId) => {
+    try {
+        const response = await fetch(`/api/admin/material-history?materialId=${materialId}`)
+        if (!response.ok) throw new Error('ดึงประวัติไม่สำเร็จ')
+
+        materialHistory.value = await response.json()
+    } catch (err) {
+        console.error('Error fetching material history:', err)
+    }
+}
+
 const fetchMaterials = async () => {
     try {
         const response = await fetch('/api/admin/material', {
@@ -32,6 +47,10 @@ const openModal = (type, material) => {
     modalType.value = type
     selectedMaterial.value = material
     quantity.value = ''
+
+    if (type === MODAL_TYPES.DETAILS) {
+        fetchMaterialHistory(material.id)
+    }
 }
 
 const closeModal = () => {
@@ -219,13 +238,65 @@ onMounted(async () => {
             <!-- Details Modal -->
             <div v-if="modalType === MODAL_TYPES.DETAILS"
                 class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                <div class="bg-white p-6 rounded-lg w-96">
+                <div class="bg-white p-6 rounded-lg w-[600px] max-h-[80vh] overflow-auto">
                     <h2 class="text-xl font-bold mb-4">รายละเอียด {{ selectedMaterial?.name }}</h2>
-                    <div class="space-y-2">
-                        <p><strong>Part Number:</strong> {{ selectedMaterial?.partnumber }}</p>
-                        <p><strong>จำนวนคงเหลือ:</strong> {{ selectedMaterial?.totalAmount }}</p>
-                        <!-- Add more details as needed -->
+
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">ข้อมูลทั่วไป</h3>
+                            <p><strong>Part Number:</strong> {{ selectedMaterial?.partnumber }}</p>
+                            <p><strong>จำนวนคงเหลือ:</strong> {{ selectedMaterial?.totalAmount }}</p>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">ประวัติการนำเข้า</h3>
+                            <table v-if="materialHistory.importHistory.length" class="w-full border">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="border p-2">วันที่</th>
+                                        <th class="border p-2">จำนวน</th>
+                                        <th class="border p-2">ผู้นำเข้า</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="history in materialHistory.importHistory" :key="history.id"
+                                        class="text-center">
+                                        <td class="border p-2">
+                                            {{ new Date(history.date).toLocaleString() }}
+                                        </td>
+                                        <td class="border p-2">{{ history.quantity }}</td>
+                                        <td class="border p-2">{{ history.user || '-' }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p v-else class="text-gray-500">ไม่มีประวัติการนำเข้า</p>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">ประวัติการนำออก</h3>
+                            <table v-if="materialHistory.exportHistory.length" class="w-full border">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="border p-2">วันที่</th>
+                                        <th class="border p-2">จำนวน</th>
+                                        <th class="border p-2">ผู้นำออก</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="history in materialHistory.exportHistory" :key="history.id"
+                                        class="text-center">
+                                        <td class="border p-2">
+                                            {{ new Date(history.date).toLocaleString() }}
+                                        </td>
+                                        <td class="border p-2">{{ history.quantity }}</td>
+                                        <td class="border p-2">{{ history.user || '-' }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p v-else class="text-gray-500">ไม่มีประวัติการนำออก</p>
+                        </div>
                     </div>
+
                     <div class="mt-4 text-right">
                         <button @click="closeModal" class="bg-gray-300 text-black px-4 py-2 rounded">
                             ปิด
