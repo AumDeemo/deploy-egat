@@ -22,7 +22,7 @@ model material {
   id      Int   @id @default(autoincrement())
   name    String
   partnumber    String?
-  totalAmount   Int?
+  totalAmount   Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -48,4 +48,9 @@ model ExportHistory {
   date       DateTime @default(now())
 }
 
-
+model File {
+  id        Int      @id @default(autoincrement())
+  name      String
+  path      String
+  createdAt DateTime @default(now())
+}

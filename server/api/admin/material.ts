@@ -1,3 +1,4 @@
+//server/api/admin/material.ts
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -23,6 +24,9 @@ export default defineEventHandler(async (event) => {
   if (method === 'DELETE') {
     const query = getQuery(event);
     const id = Number(query.id);
+
+
     return await prisma.material.delete({ where: { id } });
   }
+  
 });

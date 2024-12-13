@@ -8,6 +8,9 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@pinia/nuxt',
     '@nuxtjs/google-fonts',
+    // Simple usage
+    '@nuxtus/nuxt-localtunnel'
+    
   ],
   googleFonts: {
     families: {
@@ -24,4 +27,5 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
+  localtunnel: {} 
 })
