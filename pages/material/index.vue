@@ -83,7 +83,6 @@ const material = async () => {
     partnumber: partnumber.value,
     totalAmount: totalAmount.value,
   });
-
   try {
     const response = await $fetch("/api/auth/material", {
       method: "POST",

@@ -1,3 +1,15 @@
+<template>
+  <adminLayouts>
+    <div>
+      <form @submit.prevent="uploadFile" >
+        <input type="file" ref="fileInput" />
+        <button type="submit">Upload File</button>
+      </form>
+      
+    </div>
+  </adminLayouts>
+</template>
+
 <script setup>
 import { ref } from 'vue';
 import adminLayouts from '~/layouts/adminLayouts.vue';
@@ -10,33 +22,20 @@ const uploadFile = async () => {
     const formData = new FormData();
     formData.append('file', file);
 
+    console.log('File ready to upload:', file);
+
     try {
-      const response = await $fetch('/api/crumentupload', {
+      const response = await $fetch('/api/files/crumentupload', {
         method: 'POST',
         body: formData,
       });
-      console.log('File uploaded:', response);
+      console.log('Response from server:', response);
     } catch (error) {
-      console.error('Error uploading file:', error);
+      console.error('Error during upload:', error.message);
     }
+  } else {
+    console.error('No file selected');
   }
 };
 </script>
 
-<template>
-  <adminLayouts>
-    <div>
-      <form @submit.prevent="uploadFile">
-        <input type="file" ref="fileInput" />
-        <button type="submit">Upload File</button>
-      </form>
-      <div v-if="uploadResponse">
-        <p>{{ uploadResponse.message }}</p>
-      </div>
-    </div>
-  </adminLayouts>
-</template>
-
-<style scoped>
-/* ใส่สไตล์เพิ่มเติมตามต้องการ */
-</style>

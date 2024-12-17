@@ -1,61 +1,102 @@
 <template>
-  <div class="flex flex-col h-full">
-    <div class="sm:p-0 p-2">
-      <button
-        class="sm:hidden btn btn-ghost btn-circle p-2 text-black bg-zinc-300"
-        @click="toggleMobileNav"
+  <div class="flex flex-col h-full select-none">
+    <!-- Mobile Hamburger Menu Button -->
+    <button
+      class="sm:hidden btn btn-ghost btn-circle fixed top-4 left-4 z-50 p-2 text-black bg-zinc-300"
+      @click="toggleMobileNav"
+    >
+      <!-- Hamburger Icon -->
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        stroke="currentColor"
+        class="w-6 h-6 hamburger-icon"
+        :class="{ 'rotate-90': mobileNavOpen, 'rotate-0': !mobileNavOpen }"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          stroke="currentColor"
-          class="w-6 h-6"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h16"
-          />
-        </svg>
-      </button>
-    </div>
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16"
+        />
+      </svg>
+    </button>
 
-    <!-- Sidebar for Mobile Navigation -->
+    <!-- Mobile Sidebar (Overlay) -->
     <div
       v-if="mobileNavOpen"
-      class="fixed inset-0 bg-gray-800 bg-opacity-75 z-40 sm:hidden"
+      class="fixed inset-0 bg-gray-800 bg-opacity-75 z-40 sm:hidden mobile-menu-overlay"
+      :class="{ 'mobile-menu-active': mobileNavOpen }"
       @click="toggleMobileNav"
     >
       <div
-        class="absolute left-0 top-0 h-full w-60 bg-white font-kanit p-2 overflow-auto"
+        class="absolute left-0 top-0 h-full w-full bg-white p-4 overflow-auto shadow-lg"
         @click.stop
       >
-        <img class="pr-4 pl-4 pt-4" src="/public/admin/EGAT_LOGO.png" alt="logo" />
-        <div class="divider pr-4 pl-4"></div>
-        <div class="pr-2 pl-2">
-          <RouterLink
-            to="/admin"
-            class="block py-2 px-4 hover:bg-gray-200 rounded-full border-2 border-accent"
-          >
-            <p class="text-base text-orange-400 ml-2">รายการอะไหล่</p>
-          </RouterLink>
+        <!-- Logo -->
+        <img
+          src="https://www.egat.co.th/home/wp-content/uploads/2021/07/LogoEGAT-TH.png"
+          alt="EGAT-LOGO"
+          class="w-36 mx-auto mb-4"
+        />
+        <!-- Mobile Menu -->
+        <ul>
+          <li v-for="menu in menus" :key="menu.name" class="mb-4">
+            <div v-if="menu.items">
+              <!-- เมนูหลัก -->
+              <div
+                @click.stop="toggleMenu(menu.name)"
+                class="flex items-center justify-between cursor-pointer py-2 px-4 hover:bg-gray-300 rounded-lg"
+              >
+                <span class="text-gray-700">{{ menu.name }}</span>
+                <!-- ไอคอนลูกศร -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  :class="openMenu === menu.name ? 'rotate-180' : ''"
+                  class="h-5 w-5 transition-transform"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  fill="none"
+                >
+                  <path d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+              <!-- เมนูย่อย -->
+              <ul
+                v-if="openMenu === menu.name"
+                class="submenu absolute left-0 top-full bg-white shadow-md rounded-lg"
+              >
+                <li v-for="item in menu.items" :key="item.name" class="mb-2">
+                  <RouterLink
+                    :to="item.link"
+                    class="block py-2 px-4 text-gray-600 hover:bg-gray-200 rounded-lg"
+                  >
+                    {{ item.name }}
+                  </RouterLink>
+                </li>
+              </ul>
+            </div>
 
-          <RouterLink
-            to="/admin"
-            class="block mt-2 py-2 px-4 hover:bg-gray-200 rounded-full border-2 border-accent"
-          >
-            <p class="text-base text-orange-400 ml-2">ไฟล์เอกสาร</p>
-          </RouterLink>
-        </div>
+            <!-- เมนูปกติ (ไม่มีเมนูย่อย) -->
+            <RouterLink
+              v-else
+              :to="menu.link"
+              class="block py-2 px-4 text-gray-700 hover:bg-gray-300 rounded-lg"
+            >
+              {{ menu.name }}
+            </RouterLink>
+          </li>
+        </ul>
+        <!-- Close Button -->
+        <button class="text-gray-700 mt-4" @click="toggleMobileNav">ปิดเมนู</button>
       </div>
     </div>
 
     <div class="flex select-none">
       <!-- Sidebar -->
       <aside
-        class="fixed w-60 bg-gradient-to-b from-zinc-600 to-zinc-700 h-screen shadow-lg"
+        class="hidden sm:flex fixed w-60 bg-gradient-to-b from-zinc-600 to-zinc-700 h-screen flex-col"
       >
         <!-- Header -->
         <div class="h-24 bg-blue-200 flex justify-center items-center">
@@ -151,7 +192,7 @@
 
       <!-- Main Content -->
       <div
-        class="flex-1 mx-auto w-screen ml-60 overflow-x-auto overflow-y-hidden select-none"
+        class="flex-1 mx-auto w-full sm:ml-60 overflow-x-auto overflow-y-hidden select-none"
       >
         <div
           class="bg-gradient-to-r from-blue-400 via-blue-300 to-blue-500 w-full h-[96px] p-5 shadow-lg flex items-center justify-center"
@@ -195,14 +236,13 @@
 </template>
 
 <script setup>
-import { LogoutIcon } from "@vue-hero-icons/outline";
-import { useAuthStore } from "#build/imports";
-import { ref } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 
 // ตัวแปรจัดการเมนู
 const openMenu = ref(null);
+const mobileNavOpen = ref(false); // ควบคุมการเปิด/ปิด Hamburger Menu
+const activeSubMenu = ref(null);
 
-// ข้อมูลเมนูและเมนูย่อย
 const menus = ref([
   {
     name: "รายการอะไหล่",
@@ -254,13 +294,39 @@ const toggleMenu = (menuName) => {
   openMenu.value = openMenu.value === menuName ? null : menuName;
 };
 
-const authStore = useAuthStore();
-
-const activeSubMenu = ref(null);
-
 const setActiveSubMenu = (menuName) => {
   activeSubMenu.value = menuName;
 };
+
+// ฟังก์ชันเปิด/ปิด Hamburger Menu
+const toggleMobileNav = () => {
+  mobileNavOpen.value = !mobileNavOpen.value;
+};
+
+// ฟังก์ชันตรวจจับคลิกนอกเมนูเพื่อปิดเมนูย่อย
+const closeMenuOnOutsideClick = (event) => {
+  // ตรวจสอบว่าคลิกเกิดขึ้นภายใน Hamburger Menu
+  const mobileNav = document.querySelector(".sm:hidden");
+  const submenu = mobileNav.querySelector(".submenu");
+
+  // ถ้าคลิกภายนอก Hamburger Menu หรือเมนูย่อย ให้ปิดเมนูย่อย
+  if (mobileNav && !mobileNav.contains(event.target)) {
+    mobileNavOpen.value = false; // ปิด Hamburger Menu
+    openMenu.value = null; // ปิดเมนูย่อย
+  } else if (submenu && !submenu.contains(event.target)) {
+    // ถ้าคลิกภายนอกเมนูย่อยให้ปิดเมนูย่อย
+    openMenu.value = null;
+  }
+};
+
+// ใช้ onMounted และ onBeforeUnmount เพื่อติดตามและลบ event listener
+onMounted(() => {
+  document.addEventListener("click", closeMenuOnOutsideClick);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("click", closeMenuOnOutsideClick);
+});
 </script>
 
 <style scoped>
@@ -300,6 +366,53 @@ li:hover {
 
 /* เมื่อเมนูย่อยเปิด */
 .menu-sub-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+.submenu {
+  position: absolute;
+  left: 0;
+  top: 100%; /* อยู่ด้านล่างของเมนูหลัก */
+  background-color: white;
+  z-index: 50;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  min-width: 100%;
+  opacity: 1;
+  transform: none;
+  transition: none; /* ปิดเอฟเฟกต์การเปลี่ยนแปลง */
+}
+.hamburger-icon {
+  display: inline-block;
+  cursor: pointer;
+  color: #1e40af; /* สีเริ่มต้น: น้ำเงินเข้ม (ตามธีมเว็บ) */
+  transition: transform 0.3s ease-in-out, color 0.3s ease-in-out,
+    transform 0.3s ease-in-out 0.1s; /* เพิ่ม delay ที่นี่ */
+}
+
+.hamburger-icon:hover {
+  color: #f97316; /* สีส้มอ่อนเมื่อ Hover */
+  transform: scale(1.1); /* ขยายเล็กน้อย */
+}
+
+.hamburger-icon:active {
+  color: #ea580c; /* สีส้มเข้มเมื่อกด */
+  transform: scale(0.9); /* หดเล็กน้อย */
+}
+.rotate-90 {
+  transform: rotate(90deg);
+}
+
+.rotate-0 {
+  transform: rotate(0deg);
+}
+.mobile-menu-overlay {
+  opacity: 0;
+  transform: translateY(-10%);
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.mobile-menu-active {
   opacity: 1;
   transform: translateY(0);
 }
