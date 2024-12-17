@@ -301,31 +301,27 @@ const menus = ref([
   },
   {
     name: "Fork-Lift",
-    link: "/admin/forklift"
+    link: "/admin/forklift",
   },
   {
     name: "รถยนต์บริการ",
-    items: [
-      { name: "Toyota", link: "" },
-      { name: "Honda", link: "" },
-      { name: "Isuzu", link: "" },
-    ],
+    link: "/admin/servicemotor",
   },
   {
     name: "ครุภัณฑ์และเครื่องมือเครื่องใช้",
-    link: "/users/sparepartslist", // ใช้ลิงก์แทนเมนูย่อย
+    link: "/admin/crument", // ใช้ลิงก์แทนเมนูย่อย
   },
   {
     name: "Oil Analysis",
-    link: "/users/sparepartslist", // ใช้ลิงก์แทนเมนูย่อย
+    link: "/admin/oilanalysis", // ใช้ลิงก์แทนเมนูย่อย
   },
   {
     name: "งานเบิกซื้อ",
-    link: "/users/sparepartslist", // ใช้ลิงก์แทนเมนูย่อย
+    link: "/admin/buy", // ใช้ลิงก์แทนเมนูย่อย
   },
   {
     name: "งานเบิกจ้าง",
-    link: "/users/sparepartslist", // ใช้ลิงก์แทนเมนูย่อย
+    link: "/admin/hire", // ใช้ลิงก์แทนเมนูย่อย
   },
 ]);
 </script>

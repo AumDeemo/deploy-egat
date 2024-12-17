@@ -1,41 +1,42 @@
 <template>
   <adminLayouts>
     <div>
-      <form @submit.prevent="uploadFile" >
+      <form @submit.prevent="uploadFile">
         <input type="file" ref="fileInput" />
-        <button type="submit">Upload File</button>
+        <button class="btn" type="submit">Upload File</button>
       </form>
-      
+      <div v-if="uploadedFile">
+        <p>Uploaded File:</p>
+        <p>Name: {{ uploadedFile.name }}</p>
+        <p>Path: {{ uploadedFile.path }}</p>
+      </div>
     </div>
   </adminLayouts>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import adminLayouts from '~/layouts/adminLayouts.vue';
+import { ref } from "vue";
+import adminLayouts from "~/layouts/adminLayouts.vue";
+
+import axios from "axios";
 
 const fileInput = ref(null);
+const uploadedFile = ref(null);
 
 const uploadFile = async () => {
   const file = fileInput.value.files[0];
-  if (file) {
-    const formData = new FormData();
-    formData.append('file', file);
+  if (!file) return alert("Please select a file!");
 
-    console.log('File ready to upload:', file);
+  const formData = new FormData();
+  formData.append("file", file);
 
-    try {
-      const response = await $fetch('/api/files/crumentupload', {
-        method: 'POST',
-        body: formData,
-      });
-      console.log('Response from server:', response);
-    } catch (error) {
-      console.error('Error during upload:', error.message);
-    }
-  } else {
-    console.error('No file selected');
+  try {
+    const { data } = await axios.post("/api/files/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    uploadedFile.value = data.file;
+  } catch (error) {
+    console.error("File upload failed:", error);
   }
 };
 </script>
-

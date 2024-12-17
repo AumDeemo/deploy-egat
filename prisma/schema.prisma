@@ -51,3 +51,18 @@ model File {
   path      String
   createdAt DateTime @default(now())
 }
+
+model Machine {
+  id        Int    @id @default(autoincrement())
+  name      String
+  brand     String
+  model     String
+  num       String
+  capacity  String
+  carry     String
+  carNum    String
+  image     String?
+  createdAt    DateTime @default(now())
+}
+
+

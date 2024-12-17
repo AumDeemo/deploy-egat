@@ -6,6 +6,7 @@ const materials = ref([]);
 const selectedMaterial = ref(null);
 const modalType = ref(null);
 const quantity = ref("");
+const searchQuery = ref(""); // State สำหรับช่องค้นหา
 
 // Modal types
 const MODAL_TYPES = {
@@ -43,6 +44,20 @@ const fetchMaterials = async () => {
     console.error("แสดงข้อมูลอะไหล่ไม่สำเร็จ:", err);
   }
 };
+
+// Computed Property สำหรับกรองข้อมูล
+const filteredMaterials = computed(() => {
+  if (!searchQuery.value) return materials.value; // ถ้าไม่มีคำค้นหา แสดงข้อมูลทั้งหมด
+  return materials.value.filter(
+    (material) =>
+      material.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      material.partnumber.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
+
+onMounted(() => {
+  fetchMaterials();
+});
 
 const openModal = (type, material) => {
   modalType.value = type;
@@ -145,13 +160,14 @@ onMounted(async () => {
 <template>
   <adminLayouts>
     <div class="max-w-8xl mx-auto">
-      <!-- Add Material Button -->
-      <div class="flex justify-center">
+      <!-- ปุ่มเพิ่มรายการ และ ช่องค้นหา แนวนอน -->
+      <div class="flex justify-between items-center mb-4 gap-4">
+        <!-- ปุ่มเพิ่มรายการ -->
         <RouterLink
           to="/material"
-          class="bg-green-500 w-screen rounded-lg p-3 cursor-pointer transform transition duration-200 ease-in-out shadow-md hover:shadow-lg hover:bg-green-600 active:scale-95 active:bg-green-700"
+          class="bg-green-500 rounded-lg w-full py-3 cursor-pointer transform transition duration-200 ease-in-out shadow-md hover:shadow-lg hover:bg-green-600 active:scale-95 active:bg-green-700 flex items-center justify-center"
         >
-          <div class="flex gap-2 justify-center items-center">
+          <div class="flex gap-2 items-center">
             <div class="transform transition duration-200 hover:scale-110">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -168,13 +184,17 @@ onMounted(async () => {
                 />
               </svg>
             </div>
-            <p
-              class="text-white font-bold text-lg transform transition duration-200 hover:scale-105"
-            >
-              เพิ่มรายการ
-            </p>
+            <p class="text-white font-bold text-lg">เพิ่มรายการ</p>
           </div>
         </RouterLink>
+
+        <!-- ช่องค้นหา -->
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="ค้นหา"
+          class="w-1/3 p-3 border border-gray-300 rounded-full text-center shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200 ease-in-out"
+        />
       </div>
 
       <!-- Materials Table -->
@@ -196,13 +216,13 @@ onMounted(async () => {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(material, index) in materials" :key="material.id">
-                  <th>{{ index + 1 }}</th>
+                <tr v-for="(material, index) in filteredMaterials" :key="material.id">
+                  <th data-label="ลำดับ">{{ index + 1 }}</th>
                   <!-- ใช้ index เพื่อแสดงลำดับ -->
-                  <td>{{ material.name }}</td>
-                  <td>{{ material.partnumber }}</td>
-                  <td>{{ material.totalAmount }}</td>
-                  <td>
+                  <td data-label="รายการ">{{ material.name }}</td>
+                  <td data-label="PART NUMBER">{{ material.partnumber }}</td>
+                  <td data-label="คงเหลือ">{{ material.totalAmount }}</td>
+                  <td data-label="นำเข้า">
                     <div
                       @click="openModal(MODAL_TYPES.IMPORT, material)"
                       class="bg-green-500 hover:bg-green-600 active:bg-green-700 rounded-md h-10 flex gap-1 items-center justify-center cursor-pointer transform transition duration-150 shadow-md hover:shadow-lg"
@@ -225,7 +245,7 @@ onMounted(async () => {
                     </div>
                   </td>
 
-                  <td>
+                  <td data-label="นำออก">
                     <div
                       @click="openModal(MODAL_TYPES.EXPORT, material)"
                       class="bg-red-500 hover:bg-red-600 active:bg-red-700 rounded-md h-10 flex gap-1 items-center justify-center cursor-pointer transform transition duration-150 shadow-md hover:shadow-lg"
@@ -248,7 +268,7 @@ onMounted(async () => {
                     </div>
                   </td>
 
-                  <td>
+                  <td data-label="รายละเอียดการเบิก">
                     <div
                       @click="openModal(MODAL_TYPES.DETAILS, material)"
                       class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 rounded-md h-10 flex gap-1 items-center justify-center cursor-pointer transform transition duration-150 shadow-md hover:shadow-lg"
@@ -271,7 +291,7 @@ onMounted(async () => {
                     </div>
                   </td>
 
-                  <td>
+                  <td data-label="แก้ไข">
                     <div
                       @click="openModal(MODAL_TYPES.EDIT, material)"
                       class="bg-orange-400 hover:bg-orange-500 active:bg-orange-600 rounded-md h-10 flex gap-1 items-center justify-center cursor-pointer transform transition duration-150 shadow-md hover:shadow-lg"
@@ -294,7 +314,7 @@ onMounted(async () => {
                     </div>
                   </td>
 
-                  <td>
+                  <td data-label="ลบรายการ">
                     <div
                       @click="openModal(MODAL_TYPES.DELETE, material)"
                       class="bg-red-500 hover:bg-red-600 active:bg-red-700 rounded-md h-10 flex gap-1 items-center justify-center cursor-pointer transform transition duration-150 shadow-md hover:shadow-lg"
@@ -315,6 +335,11 @@ onMounted(async () => {
                       </svg>
                       <p class="text-white font-medium">ลบ</p>
                     </div>
+                  </td>
+                </tr>
+                <tr v-if="filteredMaterials.length === 0">
+                  <td colspan="9" class="text-center text-gray-500 py-4">
+                    ไม่พบข้อมูลที่ตรงกับคำค้นหา
                   </td>
                 </tr>
               </tbody>
@@ -503,31 +528,129 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.table-container {
+  width: 100%;
+  overflow-x: auto; /* ป้องกันการซ่อนตารางหากเนื้อหาเกินขอบจอ */
+}
+
 .table {
   width: 100%;
-  border-collapse: collapse; /* ลบเส้นระหว่างขอบ */
-  font-family: "Kanit", sans-serif; /* ใช้ฟอนต์ที่สวยงาม */
+  border-collapse: collapse;
+  font-family: "Kanit", sans-serif;
   font-size: 0.9rem;
 }
 
 .table th,
 .table td {
   background-color: #ffffff;
-  padding: 12px; /* เพิ่มช่องว่างในเซลล์ */
+  padding: 12px;
   border: 1px solid #ddd;
-  text-align: center;
+  text-align: center; /* จัดข้อความในเซลล์ตรงกลาง */
 }
 
 .table th {
-  background-color: #ffcc66; /* สีพื้นหลังของหัวตาราง */
-  color: #333; /* สีข้อความของหัวตาราง */
+  background-color: #ffcc66;
+  color: #333;
   font-weight: bold;
-  text-transform: uppercase; /* ทำให้ข้อความเป็นตัวพิมพ์ใหญ่ */
-  letter-spacing: 0.05em; /* เพิ่มช่องว่างระหว่างตัวอักษร */
+  text-transform: uppercase;
 }
 
-.table td {
-  color: #555; /* สีข้อความของเซลล์ */
+.table td:nth-child(2) {
+  text-align: left;
+  padding-left: 16px;
+}
+
+/* จัดปุ่มให้อยู่กึ่งกลาง และกำหนดขนาดคงที่ */
+.table td div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.table td div > div {
+  width: 120px; /* ความกว้างคงที่ */
+  min-width: 120px; /* ป้องกันการหด */
+  max-width: 120px; /* ป้องกันการขยาย */
+  height: 40px; /* ความสูงคงที่ */
+  flex: 0 0 auto; /* ป้องกันการยืด/หด */
+  border-radius: 5px;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: #fefefe;
+}
+/* Responsive Table for screens smaller than 768px */
+@media (max-width: 768px) {
+  .table,
+  .table thead,
+  .table tbody,
+  .table th,
+  .table td,
+  .table tr {
+    display: block;
+    width: 100%;
+  }
+
+  .table thead {
+    display: none; /* ซ่อนหัวตาราง */
+  }
+
+  .table tr {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    background-color: #fefefe;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+    color: #333;
+    text-align: left;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #555;
+    text-transform: capitalize;
+    flex-basis: 40%;
+  }
+
+  .table td div > div {
+    width: 100px; /* กำหนดขนาดเท่ากันทุกปุ่ม */
+    min-width: 100px;
+    max-width: 100px;
+    height: 35px;
+    font-size: 12px;
+  }
+}
+
+/* จอขนาดเล็กกว่า 480px */
+@media (max-width: 480px) {
+  .table td {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .table td::before {
+    font-size: 12px;
+    flex-basis: 50%;
+  }
+
+  .table td div > div {
+    width: 80px; /* ปรับความกว้างเล็กลง */
+    min-width: 80px;
+    max-width: 80px;
+    height: 30px;
+    font-size: 10px;
+  }
 }
 
 .table tbody tr:nth-child(odd) {

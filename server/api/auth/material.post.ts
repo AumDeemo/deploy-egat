@@ -18,16 +18,6 @@ export default defineEventHandler(async (event) => {
             });
         }
 
-        const numpart = await prisma.material.findFirst({ where: { partnumber } });
-        console.log('Part Number Exists:', numpart);
-
-        if (numpart) {
-            throw createError({
-                statusCode: 400,
-                message: 'partnumber ซ้ำกันในฐานข้อมูล',
-            });
-        }
-
         const newmaterial = await prisma.material.create({
             data: {
                 name,
