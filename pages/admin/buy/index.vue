@@ -3,20 +3,72 @@ import { ref } from "vue";
 import adminLayouts from "~/layouts/adminLayouts.vue";
 
 const searchQuery = ref(""); // State สำหรับช่องค้นหา
+const selectedFilePR = ref(null);
+const selectedFilePO = ref(null);
 
-// Computed Property สำหรับกรองข้อมูล
-//const filteredMaterials = computed(() => {
-//  if (!searchQuery.value) return materials.value; // ถ้าไม่มีคำค้นหา แสดงข้อมูลทั้งหมด
-//  return materials.value.filter(
-   // (material) =>
-    //  material.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    //  material.partnumber.toLowerCase().includes(searchQuery.value.toLowerCase())
- // );
-//});
+const handleFileUploadPR = (event) => {
+  selectedFilePR.value = event.target.files[0];
+  console.log("Selected PR File:", selectedFilePR.value);
+};
 
-//onMounted(() => {
-//  fetchMaterials();
-//});
+const handleFileUploadPO = (e) => {
+  selectedFilePO.value = e.target.files[0];
+  console.log("Selected PO File:", selectedFilePO.value);
+};
+
+const handleUploadPO = async () => {
+
+  if (!selectedFilePO.value) {
+    message.value = 'Please select a file.';
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', selectedFilePO.value);
+
+  try {
+    const response = await fetch('/api/admin/po/pofile', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Upload failed.');
+    }
+
+    const data = await response.json();
+    alert('สำเร็จ')
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const handleUploadPR = async () => {
+
+  if (!selectedFilePR.value) {
+    message.value = 'Please select a file.';
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', selectedFilePR.value);
+
+  try {
+    const response = await fetch('/api/admin/pr/prfile', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Upload failed.');
+    }
+
+    const data = await response.json();
+    alert('สำเร็จ')
+  } catch (error) {
+    console.error(error);
+  }
+};
 </script>
 
 <template>
@@ -24,64 +76,21 @@ const searchQuery = ref(""); // State สำหรับช่องค้นห
     <div class="max-w-8xl mx-auto">
       <!-- ปุ่มเพิ่มรายการ และ ช่องค้นหา แนวนอน -->
       <div class="flex justify-between items-center mb-4 gap-4">
-        <!-- ปุ่มเพิ่มรายการ -->
-        <RouterLink
-          to="/material"
-          class="bg-green-500 rounded-lg w-full py-3 cursor-pointer transform transition duration-200 ease-in-out shadow-md hover:shadow-lg hover:bg-green-600 active:scale-95 active:bg-green-700 flex items-center justify-center"
-        >
-          <div class="flex gap-2 items-center">
-            <div class="transform transition duration-200 hover:scale-110">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="#ffffff"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="#000000"
-                class="w-6 h-6"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 10.5v6m3-3H9m4.06-7.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z"
-                />
-              </svg>
-            </div>
-            <p class="text-white font-bold text-lg">เพิ่มไฟล์เอกซ์เซล (PR)</p>
-          </div>
-        </RouterLink>
+        <!-- ปุ่มเพิ่มไฟล์ PR -->
+        <form @submit.prevent="handleUploadPR">
+          <input type="file" @change="handleFileUploadPR" accept=".xls,.xlsx" />
+          <button type="submit" class="btn">Upload File</button>
+        </form>
 
         <!-- ช่องค้นหา -->
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="ค้นหา"
-          class="w-1/2 p-3 border border-gray-300 rounded-full text-center shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200 ease-in-out"
-        />  
+        <input v-model="searchQuery" type="text" placeholder="ค้นหา"
+          class="w-1/2 p-3 border border-gray-300 rounded-full text-center shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200 ease-in-out" />
 
-        <RouterLink
-          to="/material"
-          class="bg-green-500 rounded-lg w-full py-3 cursor-pointer transform transition duration-200 ease-in-out shadow-md hover:shadow-lg hover:bg-green-600 active:scale-95 active:bg-green-700 flex items-center justify-center"
-        >
-          <div class="flex gap-2 items-center">
-            <div class="transform transition duration-200 hover:scale-110 ">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="#ffffff"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="#000000"
-                class="w-6 h-6"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 10.5v6m3-3H9m4.06-7.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z"
-                />
-              </svg>
-            </div>
-            <p class="text-white font-bold text-lg">เพิ่มไฟล์เอกซ์เซล (PO)</p>
-          </div>
-        </RouterLink>
+        <!-- ปุ่มเพิ่มไฟล์ PO -->
+        <form @submit.prevent="handleUploadPO">
+          <input type="file" @change="handleFileUploadPO" accept=".xls,.xlsx" />
+          <button type="submit" class="btn">Upload File</button>
+        </form>
       </div>
 
       <div class="flex gap-4">
@@ -103,7 +112,3 @@ const searchQuery = ref(""); // State สำหรับช่องค้นห
     </div>
   </adminLayouts>
 </template>
-
-<style scoped>
-
-</style>

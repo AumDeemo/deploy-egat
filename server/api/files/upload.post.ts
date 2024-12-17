@@ -1,47 +1,87 @@
-import { IncomingForm } from 'formidable';
-import { writeFile } from 'fs/promises';
-import path from 'path';
-import { PrismaClient } from '@prisma/client';
+// server/api/files/upload.ts
+import fs from 'fs'
+import path from 'path'
+import { H3Event } from 'h3'
+import formidable from 'formidable'
 
-const prisma = new PrismaClient();
+export default defineEventHandler(async (event: H3Event) => {
+    // Ensure the upload directory exists
+    const uploadDir = path.join(process.cwd(), 'public', 'file')
 
-export default defineEventHandler(async (event) => {
-    const form = new IncomingForm({ keepExtensions: true });
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true })
+    }
 
     return new Promise((resolve, reject) => {
-        form.parse(event.node.req, async (err, fields, files) => {
+        const form = formidable({
+            uploadDir,
+            keepExtensions: true,
+            maxFileSize: 50 * 1024 * 1024, // 50MB max file size
+            filter: (part) => {
+                // Only allow .xlsx files
+                return part.originalFilename?.endsWith('.xlsx') || false
+            }
+        })
+
+        form.parse(event.node.req, (err, fields, files) => {
             if (err) {
-                return reject({ status: 500, message: 'File parsing failed' });
+                console.error('Formidable parse error:', err)
+                return reject(createError({
+                    statusCode: 400,
+                    statusMessage: 'File upload failed',
+                    message: err.message
+                }))
             }
 
-            const file = files.file as any;
-            if (!file) {
-                return reject({ status: 400, message: 'No file uploaded' });
-            }
+            // Get the first file from the files object
+            const fileArray = files.file as formidable.File[]
+            const file = Array.isArray(fileArray) ? fileArray[0] : fileArray
 
-            const uploadDir = path.resolve('public/uploads');
-            const filePath = path.join(uploadDir, file.newFilename);
+            // Detailed logging for debugging
+            console.log('Uploaded file details:', file)
+
+            // Check if file was uploaded successfully
+            if (!file || !file.filepath) {
+                console.error('No valid file found')
+                return reject(createError({
+                    statusCode: 400,
+                    statusMessage: 'No file uploaded',
+                    message: 'Please upload a valid .xlsx file'
+                }))
+            }
 
             try {
-                // Save file to the uploads directory
-                await writeFile(filePath, await file.toBuffer());
+                // Generate a unique filename to prevent overwriting
+                const fileName = `${Date.now()}_${file.originalFilename}`
+                const newPath = path.join(uploadDir, fileName)
 
-                // Save file details in the database
-                const savedFile = await prisma.file.create({
-                    data: {
-                        name: file.originalFilename,
-                        path: `/uploads/${file.newFilename}`,
-                    },
-                });
+                // Ensure filepath exists and is a string
+                if (!file.filepath) {
+                    throw new Error('Temporary file path is undefined')
+                }
 
+                // Rename the file to the new path
+                fs.renameSync(file.filepath, newPath)
+
+                // Respond with file details
                 resolve({
-                    status: 200,
-                    message: 'File uploaded successfully',
-                    file: savedFile,
-                });
-            } catch (error) {
-                reject({ status: 500, message: 'File saving failed', error });
+                    file: {
+                        name: fileName,
+                        originalName: file.originalFilename,
+                        path: `/file/${fileName}`,
+                        size: file.size,
+                        type: file.mimetype
+                    }
+                })
+            } catch (renameError) {
+                console.error('File rename error:', renameError)
+                reject(createError({
+                    statusCode: 500,
+                    statusMessage: 'File processing failed',
+                    message: 'Unable to save uploaded file'
+                }))
             }
-        });
-    });
-});
+        })
+    })
+})

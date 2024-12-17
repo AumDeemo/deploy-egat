@@ -20,7 +20,7 @@ model user {
 
 model material {
   id            Int             @id @default(autoincrement())
-  name          String
+  name          String          @unique
   partnumber    String?
   totalAmount   Int
   createdAt     DateTime        @default(now())
@@ -46,6 +46,27 @@ model ExportHistory {
 }
 
 model File {
+  id        Int      @id @default(autoincrement())
+  name      String
+  path      String
+  createdAt DateTime @default(now())
+}
+
+model FileOid {
+  id        Int      @id @default(autoincrement())
+  name      String
+  path      String
+  createdAt DateTime @default(now())
+}
+
+model FilePR {
+  id        Int      @id @default(autoincrement())
+  name      String
+  path      String
+  createdAt DateTime @default(now())
+}
+
+model FilePO {
   id        Int      @id @default(autoincrement())
   name      String
   path      String

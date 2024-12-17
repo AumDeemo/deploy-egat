@@ -1,42 +1,48 @@
 <template>
   <adminLayouts>
-    <div>
-      <form @submit.prevent="uploadFile">
-        <input type="file" ref="fileInput" />
-        <button class="btn" type="submit">Upload File</button>
-      </form>
-      <div v-if="uploadedFile">
-        <p>Uploaded File:</p>
-        <p>Name: {{ uploadedFile.name }}</p>
-        <p>Path: {{ uploadedFile.path }}</p>
-      </div>
-    </div>
+    <form @submit.prevent="handleUpload">
+      <input type="file" @change="onFileChange" accept=".xls,.xlsx" />
+      <button type="submit" class="btn">Upload File</button>
+    </form>
+    <p v-if="message">{{ message }}</p>
   </adminLayouts>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import adminLayouts from "~/layouts/adminLayouts.vue";
+import { ref } from 'vue';
+import adminLayouts from '~/layouts/adminLayouts.vue';
 
-import axios from "axios";
+const file = ref(null);
+const message = ref('');
 
-const fileInput = ref(null);
-const uploadedFile = ref(null);
+const onFileChange = (e) => {
+  file.value = e.target.files[0];
+};
 
-const uploadFile = async () => {
-  const file = fileInput.value.files[0];
-  if (!file) return alert("Please select a file!");
+const handleUpload = async () => {
+  if (!file.value) {
+    message.value = 'Please select a file.';
+    return;
+  }
 
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append('file', file.value);
 
   try {
-    const { data } = await axios.post("/api/files/upload", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
+    const response = await fetch('/api/admin/upload-file', {
+      method: 'POST',
+      body: formData,
     });
-    uploadedFile.value = data.file;
+
+    if (!response.ok) {
+      throw new Error('Upload failed.');
+    }
+
+    const data = await response.json();
+    message.value = `File uploaded successfully: ${data.file.name}`;
   } catch (error) {
-    console.error("File upload failed:", error);
+    console.error(error);
+    message.value = 'Error uploading file.';
   }
 };
 </script>

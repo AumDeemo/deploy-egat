@@ -28,7 +28,7 @@
               <label>ชื่ออะไหล่</label>
               <input
                 v-model="name"
-                type="name"
+                type="text"
                 placeholder=""
                 class="input input-bordered"
               />
@@ -37,7 +37,7 @@
               <label>Part number</label>
               <input
                 v-model="partnumber"
-                type="partnumber"
+                type="text"
                 placeholder=""
                 class="input input-bordered"
               />
@@ -46,7 +46,7 @@
               <label>จำนวน</label>
               <input
                 v-model="totalAmount"
-                type="totalAmount"
+                type="number"
                 placeholder=""
                 class="input input-bordered"
               />
@@ -70,6 +70,7 @@
 </template>
 <script setup>
 import { ref } from "vue";
+import axios from "axios";
 
 const name = ref("");
 const partnumber = ref("");
@@ -77,26 +78,16 @@ const totalAmount = ref("");
 const successMessage = ref(""); // ข้อความแจ้งเตือน
 
 const material = async () => {
-  console.log("Submitting material function");
-  console.log({
-    name: name.value,
-    partnumber: partnumber.value,
-    totalAmount: totalAmount.value,
-  });
   try {
-    const response = await $fetch("/api/auth/material", {
-      method: "POST",
-      body: {
-        name: name.value,
-        partnumber: partnumber.value,
-        totalAmount: totalAmount.value,
-      },
+    const response = await axios.post("/api/auth/material", {
+      name: name.value,
+      partnumber: partnumber.value,
+      totalAmount: totalAmount.value,
     });
-    console.log("Response:", response);
-    // แสดงข้อความแจ้งเตือนเมื่อเพิ่มสำเร็จ
+
+    console.log("Response:", response.data);
     successMessage.value = "เพิ่มข้อมูลสำเร็จ!";
 
-    // ล้างฟอร์ม
     name.value = "";
     partnumber.value = "";
     totalAmount.value = "";
@@ -107,7 +98,7 @@ const material = async () => {
     }, 3000);
   } catch (error) {
     console.error("Error:", error);
-    alert(error.message || "เกิดข้อผิดพลาด");
+    alert(error.response?.data?.message || "เกิดข้อผิดพลาด");
   }
 };
 </script>
