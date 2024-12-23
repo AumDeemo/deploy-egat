@@ -71,6 +71,7 @@
                   <RouterLink
                     :to="item.link"
                     class="block py-2 px-4 text-gray-600 hover:bg-gray-200 rounded-lg"
+                    @click="setActiveMenu(item.name)"
                   >
                     {{ item.name }}
                   </RouterLink>
@@ -99,7 +100,7 @@
         class="hidden sm:flex fixed w-60 bg-gradient-to-b from-zinc-600 to-zinc-700 h-screen flex-col"
       >
         <!-- Header -->
-        <div class="h-24 bg-blue-200 flex justify-center items-center">
+        <div class="egat-logo-container">
           <img
             src="https://www.egat.co.th/home/wp-content/uploads/2021/07/LogoEGAT-TH.png"
             alt="EGAT-LOGO"
@@ -121,6 +122,7 @@
                 'flex items-center mt-3 p-2 text-white rounded-xl cursor-pointer hover:bg-sky-600 transition-colors duration-200 ' +
                 (openMenu === menu.name ? 'bg-sky-600' : 'bg-sky-500')
               "
+              @click="setActiveMenu(menu.name)"
             >
               <a
                 :href="menu.link"
@@ -224,9 +226,11 @@
                 />
               </svg>
             </div>
-            <p class="text-base">รายการอะไหล่</p>
+            <p class="text-base">{{ activeMenu }}</p>
+            <!-- แสดงชื่อเมนูที่เลือก -->
           </div>
         </div>
+
         <div class="p-4 overflow-x-auto overflow-y-hidden h-[calc(100vh-160px)]">
           <slot />
         </div>
@@ -242,7 +246,12 @@ import { ref, onMounted, onBeforeUnmount } from "vue";
 const openMenu = ref(null);
 const mobileNavOpen = ref(false); // ควบคุมการเปิด/ปิด Hamburger Menu
 const activeSubMenu = ref(null);
+const activeMenu = ref("รายการอะไหล่"); // ค่าดีฟอลต์
 
+// ฟังก์ชันอัปเดต activeMenu เมื่อเลือกเมนู
+const setActiveMenu = (menuName) => {
+  activeMenu.value = menuName;
+};
 const menus = ref([
   {
     name: "รายการอะไหล่",
@@ -272,8 +281,15 @@ const menus = ref([
     items: ["Toyota", "Honda", "Isuzu"],
   },
   {
-    name: "ครุภัณฑ์และเครื่องมือเครื่องใช้",
-    link: "/users/sparepartslist", // ใช้ลิงก์แทนเมนูย่อย
+    name: "ครุภัณฑ์/เครื่องมือ",
+    items: [
+      { name: "ครุภัณฑ์", link: "/users/crument/curu" },
+      { name: "เครื่องมือเครื่องใช้", link: "/users/crument/using" },
+      {
+        name: "เครื่องมือเครื่องใช้ราคาต่ำกว่า 10,000 บาท",
+        link: "/users/crument/using10000",
+      },
+    ], // ใช้ลิงก์แทนเมนูย่อย
   },
   {
     name: "Oil Analysis",
@@ -281,7 +297,7 @@ const menus = ref([
   },
   {
     name: "งานเบิกซื้อ",
-    link: "/users/sparepartslist", // ใช้ลิงก์แทนเมนูย่อย
+    link: "/users/buy", // ใช้ลิงก์แทนเมนูย่อย
   },
   {
     name: "งานเบิกจ้าง",
@@ -415,5 +431,46 @@ li:hover {
 .mobile-menu-active {
   opacity: 1;
   transform: translateY(0);
+}
+/* Menu Title */
+.menu-title {
+  font-size: 1.25rem;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: #2563eb;
+  text-align: center;
+  padding: 0; /* ลบ padding เพื่อให้การจัดตำแหน่งทำงานได้แม่นยำ */
+  margin: 0; /* ลบ margin เพื่อจัดข้อความให้ตรงกลาง */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%; /* ใช้ความสูงเต็มพื้นที่ของ container */
+  line-height: normal; /* ปรับ line-height เพื่อไม่ให้ข้อความดูอัดแน่น */
+}
+.egat-logo-container {
+  height: 6rem; /* ความสูงของกล่อง */
+  background: radial-gradient(ellipse, #e5e6dc, #ebd725); /* ไล่สีพื้นหลัง */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* เพิ่มเงา */
+  padding: 10px;
+}
+
+.egat-logo-container img {
+  width: 9rem; /* ปรับขนาดโลโก้ */
+  height: auto;
+  border-radius: 10px; /* ขอบโค้งมน */
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.egat-logo-container img:hover {
+  transform: scale(1.1); /* ขยายเล็กน้อยเมื่อ Hover */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* เพิ่มเงาเมื่อ Hover */
+}
+
+.egat-logo-container img:active {
+  transform: scale(0.95); /* ลดขนาดเล็กน้อยเมื่อกด */
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
 }
 </style>

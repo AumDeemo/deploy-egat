@@ -1,23 +1,35 @@
 <template>
   <adminLayouts>
     <!-- หัวข้อ -->
-    <h1 class="text-center text-5xl font-extrabold text-gray-800 tracking-wider mb-5 mt-5">
+    <h1
+      class="text-center text-5xl font-extrabold text-gray-800 tracking-wider mb-5 mt-5"
+    >
       รถยนต์บริการ
     </h1>
 
     <div class="flex justify-center w-full mb-4">
       <!-- ปุ่มเปิดฟอร์มกรอกข้อมูลเครื่องจักรใหม่ -->
-      <button @click="openForm"
-        class="w-full bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-md">
+      <button
+        @click="openForm"
+        class="w-full bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-md"
+      >
         + เพิ่มข้อมูลรถยนต์
       </button>
     </div>
 
     <!-- ฟอร์มกรอกข้อมูลเครื่องจักร -->
-    <div v-if="isFormOpen" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
-      <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full mx-4 md:mx-0 relative max-h-[90vh] overflow-y-auto">
-        <button @click="closeForm" aria-label="Close Form"
-          class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-2xl">
+    <div
+      v-if="isFormOpen"
+      class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full mx-4 md:mx-0 relative max-h-[90vh] overflow-y-auto"
+      >
+        <button
+          @click="closeForm"
+          aria-label="Close Form"
+          class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-2xl"
+        >
           &times;
         </button>
 
@@ -27,7 +39,13 @@
         <form @submit.prevent="addMachine">
           <div class="mb-4">
             <label for="name" class="block text-sm font-semibold">ชื่อเครื่องจักร</label>
-            <input v-model="newMachine.name" type="text" id="name" class="w-full p-2 border rounded" required />
+            <input
+              v-model="newMachine.name"
+              type="text"
+              id="name"
+              class="w-full p-2 border rounded"
+              required
+            />
           </div>
 
           <!-- หัวข้อ "รายละเอียด" ไม่มีฟิลด์กรอก -->
@@ -38,35 +56,78 @@
 
           <div class="mb-4">
             <label for="brand" class="block text-sm font-semibold">ยี่ห้อ</label>
-            <input v-model="newMachine.brand" type="text" id="brand" class="w-full p-2 border rounded" required />
+            <input
+              v-model="newMachine.brand"
+              type="text"
+              id="brand"
+              class="w-full p-2 border rounded"
+              required
+            />
           </div>
           <div class="mb-4">
             <label for="model" class="block text-sm font-semibold">รุ่น</label>
-            <input v-model="newMachine.model" type="text" id="model" class="w-full p-2 border rounded" required />
+            <input
+              v-model="newMachine.model"
+              type="text"
+              id="model"
+              class="w-full p-2 border rounded"
+              required
+            />
           </div>
           <div class="mb-4">
             <label for="num" class="block text-sm font-semibold">หมายเลขกฟผ.</label>
-            <input v-model="newMachine.num" type="text" id="num" class="w-full p-2 border rounded" required />
+            <input
+              v-model="newMachine.num"
+              type="text"
+              id="num"
+              class="w-full p-2 border rounded"
+              required
+            />
           </div>
           <div class="mb-4">
             <label for="capacity" class="block text-sm font-semibold">ความจุ</label>
-            <input v-model="newMachine.capacity" type="text" id="capacity" class="w-full p-2 border rounded" required />
+            <input
+              v-model="newMachine.capacity"
+              type="text"
+              id="capacity"
+              class="w-full p-2 border rounded"
+              required
+            />
           </div>
           <div class="mb-4">
             <label for="carry" class="block text-sm font-semibold">น้ำหนักยก</label>
-            <input v-model="newMachine.carry" type="text" id="carry" class="w-full p-2 border rounded" required />
+            <input
+              v-model="newMachine.carry"
+              type="text"
+              id="carry"
+              class="w-full p-2 border rounded"
+              required
+            />
           </div>
           <div class="mb-4">
             <label for="carNum" class="block text-sm font-semibold">เลขทะเบียน</label>
-            <input v-model="newMachine.carNum" type="text" id="carNum" class="w-full p-2 border rounded" required />
+            <input
+              v-model="newMachine.carNum"
+              type="text"
+              id="carNum"
+              class="w-full p-2 border rounded"
+              required
+            />
           </div>
           <div class="mb-4">
             <label for="image" class="block text-sm font-semibold">เลือกภาพ</label>
-            <input @change="handleImageUpload" type="file" id="image" class="w-full p-2 border rounded" />
+            <input
+              @change="handleImageUpload"
+              type="file"
+              id="image"
+              class="w-full p-2 border rounded"
+            />
           </div>
           <div class="flex justify-end">
-            <button type="submit"
-              class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-md">
+            <button
+              type="submit"
+              class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-md"
+            >
               บันทึก
             </button>
           </div>
@@ -81,8 +142,8 @@ import { ref, onMounted } from "vue";
 import adminLayouts from "~/layouts/adminLayouts.vue";
 
 const isModalOpen = ref(false);
-const isFormOpen = ref(false); 
-const machines = ref([]); 
+const isFormOpen = ref(false);
+const machines = ref([]);
 const newMachine = ref({
   name: "",
   description: "",
@@ -93,7 +154,7 @@ const newMachine = ref({
   carry: "",
   carNum: "",
   image: null,
-}); 
+});
 
 const openForm = () => {
   isFormOpen.value = true;
@@ -181,7 +242,6 @@ const addMachine = async () => {
     console.error("Error adding machine:", error);
   }
 };
-
 
 // ดึงข้อมูลเครื่องจักรเมื่อ component โหลด
 onMounted(() => {

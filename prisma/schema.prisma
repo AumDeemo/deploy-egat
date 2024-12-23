@@ -25,9 +25,12 @@ model material {
   totalAmount   Int
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
-  exportHistory ExportHistory[]
+  imageUrl      String?    
+  category      String?            
+  exportHistory ExportHistory[] 
   importHistory ImportHistory[]
 }
+
 
 model ImportHistory {
   id         Int      @id @default(autoincrement())
@@ -85,5 +88,24 @@ model Machine {
   image     String?
   createdAt    DateTime @default(now())
 }
+//คุรุภัณ
+model curu {
+  id        Int      @id @default(autoincrement())
+  name      String
+  path      String
+  createdAt DateTime @default(now())
+}
 
+model using1 {
+  id        Int      @id @default(autoincrement())
+  name      String
+  path      String
+  createdAt DateTime @default(now())
+}
 
+model using10000 {
+  id        Int      @id @default(autoincrement())
+  name      String
+  path      String
+  createdAt DateTime @default(now())
+}

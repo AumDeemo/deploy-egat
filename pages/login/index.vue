@@ -1,78 +1,129 @@
 <template>
-    <div class="flex items-center justify-center mt-10 font-prompt">
-        <form @submit.prevent="login" class="card w-full max-w-sm bg-yellow-300 shadow-md">
-            <div class="card-body">
-                <div class="flex justify-center">
-                    <div class="flex">
-                        <img src="https://www.egat.co.th/home/en/wp-content/uploads/2024/03/engy-30.png " alt="logo"
-                            class=" w-16">
-                        <div class="flex items-end">
-                            <p class="text-2xl font-semibold inline-block select-none">เข้าสู่ระบบ</p>
-                        </div>
-                    </div>
-                </div>
+  <div
+    class="flex items-center justify-center min-h-screen bg-gradient-to-b from-blue-200 via-blue-100 to-white font-prompt select-none"
+  >
+    <form
+      @submit.prevent="login"
+      class="card w-full max-w-md bg-white shadow-xl rounded-lg"
+    >
+      <div class="card-body p-8">
+        <!-- Header -->
+        <div class="flex justify-center mb-6">
+          <div class="flex items-center space-x-4">
+            <img
+              src="https://www.egat.co.th/home/en/wp-content/uploads/2024/03/engy-30.png"
+              alt="EGAT Logo"
+              class="w-16 h-16"
+            />
+            <p class="text-3xl font-semibold text-blue-800">เข้าสู่ระบบ</p>
+          </div>
+        </div>
 
-                <div class="divider"></div>
+        <!-- Form -->
+        <div>
+          <div class="form-control mb-5">
+            <label for="email" class="text-gray-600 font-medium">อีเมล</label>
+            <input
+              v-model="username"
+              type="email"
+              id="email"
+              placeholder="กรอกอีเมล"
+              class="input input-bordered w-full border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+            />
+          </div>
+          <div class="form-control mb-5">
+            <label for="password" class="text-gray-600 font-medium">รหัสผ่าน</label>
+            <input
+              v-model="password"
+              type="password"
+              id="password"
+              placeholder="กรอกรหัสผ่าน"
+              class="input input-bordered w-full border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+            />
+            <p v-if="loginError" class="text-red-500 text-sm mt-2">{{ loginError }}</p>
+          </div>
+          <div class="form-control mt-5">
+            <button
+              type="submit"
+              class="btn btn-accent w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-medium hover:from-blue-500 hover:to-blue-400 shadow-lg"
+            >
+              เข้าสู่ระบบ
+            </button>
+          </div>
+        </div>
 
-                <div class="">
-                    <form @submit.prevent="login">
-                        <div class="form-control select-none">
-                            <label>อีเมล</label>
-                            <input v-model="username" type="email" placeholder="กรอกอีเมล" class="input input-bordered" />
-                        </div>
-                        <div class="form-control mt-5 select-none">
-                            <label>รหัสผ่าน</label>
-                            <input v-model="password" type="password" placeholder="กรอกรหัสผ่าน" class="input input-bordered" />
-                            <p v-if="loginError" class="text-red-500 mt-1">{{ loginError }}</p>
-                        </div>
-                        <div class="form-control mt-5">
-                            <button type="submit" class="btn btn-accent text-white font-light">เข้าสู่ระบบ</button>
-                        </div>
-                    </form>
-                </div>
-
-                <RouterLink to="/register" class=" flex justify-center">
-                    <div class="flex justify-center bg-black p-2 rounded-xl">
-                        <p class="text-white text-sm select-none">สมัครสมาชิก </p>
-                    </div>
-                </RouterLink>
-            </div>
-        </form>
-    </div>
+        <!-- Register Link -->
+        <div class="mt-8 text-center">
+          <RouterLink
+            to="/register"
+            class="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-500 transition"
+          >
+            สมัครสมาชิก
+          </RouterLink>
+        </div>
+      </div>
+    </form>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '~/stores/auth';
+import { ref } from "vue";
+import { useAuthStore } from "~/stores/auth";
 
-const username = ref('');
-const password = ref('');
+const username = ref("");
+const password = ref("");
 
-const loginError = ref('')
+const loginError = ref("");
 const authStore = useAuthStore();
 
-
 const login = async () => {
-    try {
-        const response = await $fetch('/api/auth/login', {
-            method: 'POST',
-            body: {
-                username: username.value,
-                password: password.value,
-            },
-        });
+  try {
+    const response = await $fetch("/api/auth/login", {
+      method: "POST",
+      body: {
+        username: username.value,
+        password: password.value,
+      },
+    });
 
-        authStore.login(response);
-    } catch (error) {
-        console.error('Login failed', error);
-        loginError.value = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
-    }
+    authStore.login(response);
+  } catch (error) {
+    console.error("Login failed", error);
+    loginError.value = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
+  }
 };
 </script>
 
 <style scoped>
 .font-prompt {
-    font-family: 'Prompt', sans-serif !important;
+  font-family: "Prompt", sans-serif !important;
+}
+
+.card {
+  border-radius: 1rem;
+}
+
+.divider {
+  text-align: center;
+  margin: 1.5rem 0;
+  position: relative;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background-color: #ddd;
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
 }
 </style>

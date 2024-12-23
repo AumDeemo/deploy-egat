@@ -7,6 +7,9 @@ const selectedMaterial = ref(null);
 const modalType = ref(null);
 const quantity = ref("");
 const searchQuery = ref(""); // State สำหรับช่องค้นหา
+const selectedImage = ref(null);
+const selectedCategory = ref(""); // เก็บหมวดหมู่ที่เลือก
+const categories = ref([]); // เก็บหมวดหมู่ทั้งหมด
 
 // Modal types
 const MODAL_TYPES = {
@@ -15,6 +18,40 @@ const MODAL_TYPES = {
   DETAILS: "details",
   EDIT: "edit",
   DELETE: "delete",
+};
+
+const fetchCategories = async () => {
+  try {
+    const response = await fetch("/api/admin/new/category");
+    const result = await response.json();
+    if (result.status === "success") {
+      categories.value = result.data;
+    } else {
+      console.error("Error fetching categories:", result.message);
+    }
+  } catch (err) {
+    console.error("Error fetching categories:", err);
+  }
+};
+
+const handleImageChange = (event) => {
+  const file = event.target.files[0];
+  if (!file) {
+    selectedImage.value = null;
+    return;
+  }
+
+  // ตรวจสอบประเภทและขนาดของไฟล์
+  if (!file.type.startsWith("image/")) {
+    alert("กรุณาเลือกไฟล์รูปภาพ");
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    alert("ขนาดไฟล์ต้องไม่เกิน 5MB");
+    return;
+  }
+
+  selectedImage.value = file;
 };
 
 const materialHistory = ref({
@@ -45,19 +82,37 @@ const fetchMaterials = async () => {
   }
 };
 
-// Computed Property สำหรับกรองข้อมูล
+// กรองวัสดุตามหมวดหมู่และคำค้นหา
 const filteredMaterials = computed(() => {
-  if (!searchQuery.value) return materials.value; // ถ้าไม่มีคำค้นหา แสดงข้อมูลทั้งหมด
-  return materials.value.filter(
-    (material) =>
-      material.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      material.partnumber.toLowerCase().includes(searchQuery.value.toLowerCase())
-  );
+  let filtered = materials.value;
+  
+  // กรองตามหมวดหมู่ที่เลือก
+  if (selectedCategory.value) {
+    filtered = filtered.filter(
+      (material) => material.category === selectedCategory.value
+    );
+  }
+
+  // กรองตามคำค้นหาหลายคำที่พิมพ์ (ค้นหาจากชื่อวัสดุและหมวดหมู่)
+  if (searchQuery.value) {
+    const searchTerms = searchQuery.value.toLowerCase().split(" "); // แยกคำค้นหา
+
+    filtered = filtered.filter((material) => {
+      // ตรวจสอบทุกคำในคำค้นหาที่ถูกแยก
+      return searchTerms.every((term) => {
+        return (
+          (material.name?.toLowerCase().includes(term)) || // ค้นหาจากชื่อวัสดุ
+          (material.category?.toLowerCase().includes(term)) || // ค้นหาจากหมวดหมู่
+          (material.partnumber?.toLowerCase().includes(term))   // ค้นหาจาก Part Number
+        );
+      });
+    });
+  }
+
+  console.log(filtered); // ตรวจสอบผลลัพธ์ที่ถูกกรอง
+  return filtered;
 });
 
-onMounted(() => {
-  fetchMaterials();
-});
 
 const openModal = (type, material) => {
   modalType.value = type;
@@ -113,22 +168,25 @@ const handleMaterialAction = async () => {
 const handleEditMaterial = async () => {
   if (!selectedMaterial.value) return;
 
+  const formData = new FormData();
+  formData.append("id", selectedMaterial.value.id);
+  formData.append("name", selectedMaterial.value.name);
+  formData.append("partnumber", selectedMaterial.value.partnumber);
+  if (selectedImage.value) {
+    formData.append("image", selectedImage.value);
+  }
+
   try {
     const response = await fetch("/api/admin/material", {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: selectedMaterial.value.id,
-        ...selectedMaterial.value,
-      }),
+      body: formData,
     });
 
     if (!response.ok) throw new Error("แก้ไขข้อมูลไม่สำเร็จ");
 
     await fetchMaterials();
     closeModal();
+    alert("แก้ไขข้อมูลสำเร็จ!"); // เพิ่มแจ้งเตือน
   } catch (err) {
     console.error("Error editing material:", err);
     // TODO: Add proper error handling
@@ -145,6 +203,7 @@ const handleDeleteMaterial = async () => {
     // Refresh materials list
     await fetchMaterials();
     closeModal();
+    alert("ลบข้อมูลสำเร็จ!"); // เพิ่มแจ้งเตือน
   } catch (err) {
     // Show error notification
     useToast().error("ไม่สามารถลบวัสดุได้");
@@ -153,6 +212,7 @@ const handleDeleteMaterial = async () => {
 };
 
 onMounted(async () => {
+  await fetchCategories();
   await fetchMaterials();
 });
 </script>
@@ -195,6 +255,17 @@ onMounted(async () => {
           placeholder="ค้นหา"
           class="w-1/3 p-3 border border-gray-300 rounded-full text-center shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200 ease-in-out"
         />
+
+        <!-- Dropdown หมวดหมู่ -->
+        <select
+          v-model="selectedCategory"
+          class="w-1/7 p-3 border border-gray-300 rounded-full text-center shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200 ease-in-out"
+        >
+          <option value="">ทั้งหมด</option>
+          <option v-for="cat in categories" :key="cat" :value="cat">
+            {{ cat }}
+          </option>
+        </select>
       </div>
 
       <!-- Materials Table -->
@@ -205,9 +276,10 @@ onMounted(async () => {
               <thead>
                 <tr>
                   <th class="w-[50px]">ลำดับ</th>
+                  <th class="w-[150px]">รูปภาพ</th>
                   <th class="w-[200px]">รายการ</th>
                   <th class="w-[200px]">PART NUMBER</th>
-                  <th class="w-[200px]">คงเหลือ</th>
+                  <th class="w-[100px]">คงเหลือ</th>
                   <th class="w-[150px]">นำเข้า</th>
                   <th class="w-[150px]">นำออก</th>
                   <th class="w-[200px]">รายละเอียดการเบิก</th>
@@ -218,7 +290,17 @@ onMounted(async () => {
               <tbody>
                 <tr v-for="(material, index) in filteredMaterials" :key="material.id">
                   <th data-label="ลำดับ">{{ index + 1 }}</th>
-                  <!-- ใช้ index เพื่อแสดงลำดับ -->
+                  <td data-label="รูปภาพ">
+                    <!-- แสดงรูปภาพถ้ามี URL -->
+                    <img
+                      v-if="material.imageUrl"
+                      :src="material.imageUrl"
+                      alt="Material Image"
+                      class="h-16 w-16 object-cover rounded-md"
+                    />
+                    <!-- แสดงข้อความถ้าไม่มีรูป -->
+                    <span v-else class="text-gray-500">ไม่มีรูปภาพ</span>
+                  </td>
                   <td data-label="รายการ">{{ material.name }}</td>
                   <td data-label="PART NUMBER">{{ material.partnumber }}</td>
                   <td data-label="คงเหลือ">{{ material.totalAmount }}</td>
@@ -474,17 +556,45 @@ onMounted(async () => {
         <div class="bg-white p-6 rounded-lg w-96">
           <h2 class="text-xl font-bold mb-4">แก้ไข {{ selectedMaterial?.name }}</h2>
           <div class="space-y-4">
+            <!-- ชื่อรายการ -->
             <input
               v-model="selectedMaterial.name"
               placeholder="ชื่อรายการ"
               class="w-full p-2 border rounded"
             />
+
+            <!-- PART NUMBER -->
             <input
               v-model="selectedMaterial.partnumber"
               placeholder="Part Number"
               class="w-full p-2 border rounded"
             />
-            <!-- Add more editable fields as needed -->
+
+            <!-- รูปภาพปัจจุบัน -->
+            <div>
+              <p class="font-bold">รูปภาพปัจจุบัน:</p>
+              <img
+                v-if="selectedMaterial.imageUrl"
+                :src="selectedMaterial.imageUrl"
+                alt="Current Image"
+                class="h-32 w-32 object-cover rounded-md mx-auto"
+              />
+              <span v-else class="text-gray-500">ไม่มีรูปภาพ</span>
+            </div>
+
+            <!-- เลือกรูปภาพใหม่ -->
+            <div>
+              <p class="font-bold">เลือกรูปภาพใหม่:</p>
+              <input
+                type="file"
+                @change="handleImageChange"
+                class="w-full p-2 border rounded"
+                accept="image/*"
+              />
+              <p class="text-sm text-gray-500">
+                ขนาดไฟล์ต้องไม่เกิน 5MB และรองรับเฉพาะไฟล์รูปภาพ
+              </p>
+            </div>
           </div>
           <div class="flex justify-between mt-4">
             <button @click="closeModal" class="bg-gray-300 text-black px-4 py-2 rounded">
@@ -556,8 +666,16 @@ onMounted(async () => {
 }
 
 .table td:nth-child(2) {
-  text-align: left;
-  padding-left: 16px;
+  text-align: space-between; /* จัดให้อยู่ตรงกลางตามแนวนอน */
+  vertical-align: middle; /* จัดให้อยู่ตรงกลางตามแนวตั้ง */
+  padding: 8px;
+}
+
+.table td:nth-child(2) img {
+  display: block; /* ให้ภาพเป็น block เพื่อให้จัดกึ่งกลางได้ */
+  margin: 0 auto; /* จัดให้อยู่ตรงกลาง */
+  max-width: 100px; /* กำหนดขนาดสูงสุดของภาพ */
+  max-height: 100px;
 }
 
 /* จัดปุ่มให้อยู่กึ่งกลาง และกำหนดขนาดคงที่ */
@@ -565,6 +683,7 @@ onMounted(async () => {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: auto; /* ความกว้างคงที่ */
 }
 
 .table td div > div {
@@ -623,12 +742,11 @@ onMounted(async () => {
     flex-basis: 40%;
   }
 
-  .table td div > div {
-    width: 100px; /* กำหนดขนาดเท่ากันทุกปุ่ม */
-    min-width: 100px;
-    max-width: 100px;
-    height: 35px;
-    font-size: 12px;
+  .table td div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px; /* ความกว้างสำหรับจอปกติ */
   }
 }
 
@@ -644,12 +762,11 @@ onMounted(async () => {
     flex-basis: 50%;
   }
 
-  .table td div > div {
-    width: 80px; /* ปรับความกว้างเล็กลง */
-    min-width: 80px;
-    max-width: 80px;
-    height: 30px;
-    font-size: 10px;
+  .table td div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px; /* ความกว้างสำหรับจอปกติ */
   }
 }
 

@@ -1,87 +1,117 @@
-// server/api/files/upload.ts
-import fs from 'fs'
-import path from 'path'
-import { H3Event } from 'h3'
-import formidable from 'formidable'
+import fs from 'fs';
+import path from 'path';
+import { H3Event } from 'h3';
+import formidable from 'formidable';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event: H3Event) => {
-    // Ensure the upload directory exists
-    const uploadDir = path.join(process.cwd(), 'public', 'file')
+  // Directory for uploads
+  const uploadDir = path.join(process.cwd(), 'public', 'file');
 
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true })
-    }
+  // Ensure upload directory exists
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
 
-    return new Promise((resolve, reject) => {
-        const form = formidable({
-            uploadDir,
-            keepExtensions: true,
-            maxFileSize: 50 * 1024 * 1024, // 50MB max file size
-            filter: (part) => {
-                // Only allow .xlsx files
-                return part.originalFilename?.endsWith('.xlsx') || false
-            }
-        })
+  return new Promise((resolve, reject) => {
+    const form = formidable({
+      uploadDir,
+      keepExtensions: true,
+      maxFileSize: 50 * 1024 * 1024, // 50MB max size
+      filter: (part) =>
+        part.mimetype?.startsWith('image/') || part.originalFilename?.endsWith('.xlsx'),
+    });
 
-        form.parse(event.node.req, (err, fields, files) => {
-            if (err) {
-                console.error('Formidable parse error:', err)
-                return reject(createError({
-                    statusCode: 400,
-                    statusMessage: 'File upload failed',
-                    message: err.message
-                }))
-            }
+    form.parse(event.node.req, async (err, fields, files) => {
+      if (err) {
+        console.error('Formidable parse error:', err);
+        return reject(
+          createError({
+            statusCode: 400,
+            statusMessage: 'File upload failed',
+            message: err.message,
+          })
+        );
+      }
 
-            // Get the first file from the files object
-            const fileArray = files.file as formidable.File[]
-            const file = Array.isArray(fileArray) ? fileArray[0] : fileArray
+      try {
+        // Validate fields
+        const name = fields.name?.toString() || '';
+        const brand = fields.brand?.toString() || '';
+        const model = fields.model?.toString() || '';
+        const num = fields.num?.toString() || '';
+        const capacity = fields.capacity?.toString() || '';
+        const carry = fields.carry?.toString() || '';
+        const carNum = fields.carNum?.toString() || '';
 
-            // Detailed logging for debugging
-            console.log('Uploaded file details:', file)
+        if (!name || !brand || !model || !num || !capacity || !carry || !carNum) {
+          return reject(
+            createError({
+              statusCode: 400,
+              statusMessage: 'Missing required fields',
+              message: 'Please fill in all required fields',
+            })
+          );
+        }
 
-            // Check if file was uploaded successfully
-            if (!file || !file.filepath) {
-                console.error('No valid file found')
-                return reject(createError({
-                    statusCode: 400,
-                    statusMessage: 'No file uploaded',
-                    message: 'Please upload a valid .xlsx file'
-                }))
-            }
+        // Handle file upload
+        const fileArray = files.file as formidable.File[] | formidable.File | undefined;
+        const file = Array.isArray(fileArray) ? fileArray[0] : fileArray;
+        let imagePath: string | null = null;
 
-            try {
-                // Generate a unique filename to prevent overwriting
-                const fileName = `${Date.now()}_${file.originalFilename}`
-                const newPath = path.join(uploadDir, fileName)
+        if (file && file.filepath) {
+          const fileName = `${Date.now()}_${file.originalFilename}`;
+          const newPath = path.join(uploadDir, fileName);
 
-                // Ensure filepath exists and is a string
-                if (!file.filepath) {
-                    throw new Error('Temporary file path is undefined')
-                }
+          // Rename file to final destination
+          fs.renameSync(file.filepath, newPath);
+          imagePath = `/file/${fileName}`;
+        }
 
-                // Rename the file to the new path
-                fs.renameSync(file.filepath, newPath)
+        // Save machine data in the database
+        const newMachine = await prisma.machine.create({
+          data: {
+            name,
+            brand,
+            model,
+            num,
+            capacity,
+            carry,
+            carNum,
+            image: imagePath || null, // Save the file path or null
+          },
+        });
 
-                // Respond with file details
-                resolve({
-                    file: {
-                        name: fileName,
-                        originalName: file.originalFilename,
-                        path: `/file/${fileName}`,
-                        size: file.size,
-                        type: file.mimetype
-                    }
-                })
-            } catch (renameError) {
-                console.error('File rename error:', renameError)
-                reject(createError({
-                    statusCode: 500,
-                    statusMessage: 'File processing failed',
-                    message: 'Unable to save uploaded file'
-                }))
-            }
-        })
-    })
-})
+        // Send back the response
+        resolve({
+          success: true,
+          data: {
+            id: newMachine.id,
+            name: newMachine.name,
+            brand: newMachine.brand,
+            model: newMachine.model,
+            num: newMachine.num,
+            capacity: newMachine.capacity,
+            carry: newMachine.carry,
+            carNum: newMachine.carNum,
+            image: newMachine.image,
+          },
+        });
+      } catch (error) {
+        console.error('Error processing machine data:', error);
+        reject(
+          createError({
+            statusCode: 500,
+            statusMessage: 'Processing error',
+            message: 'Unable to process machine data',
+          })
+        );
+      } finally {
+        // Ensure Prisma disconnects
+        await prisma.$disconnect();
+      }
+    });
+  });
+});
