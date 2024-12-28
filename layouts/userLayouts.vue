@@ -27,7 +27,7 @@
     <div
       v-if="mobileNavOpen"
       class="fixed inset-0 bg-gray-800 bg-opacity-75 z-40 sm:hidden mobile-menu-overlay"
-      :class="{ 'mobile-menu-active': mobileNavOpen }"
+      :class="{ 'mobile-menu-active': mobileNavOpen }" 
       @click="toggleMobileNav"
     >
       <div
@@ -113,7 +113,7 @@
         </ul>
 
         <!-- เมนู -->
-        <div class="pr-2 pl-2 select-none">
+        <div class="pr-2 pl-2 select-none" ref="desktopMenuRef">
           <div v-for="menu in menus" :key="menu.name" class="relative">
             <!-- ตรวจสอบว่ามี link -->
             <div
@@ -247,6 +247,8 @@ const openMenu = ref(null);
 const mobileNavOpen = ref(false); // ควบคุมการเปิด/ปิด Hamburger Menu
 const activeSubMenu = ref(null);
 const activeMenu = ref("รายการอะไหล่"); // ค่าดีฟอลต์
+const hamburgerMenuRef = ref(null); // สำหรับ Hamburger Menu
+const desktopMenuRef = ref(null); // สำหรับเมนูย่อยหน้าจอปกติ
 
 // ฟังก์ชันอัปเดต activeMenu เมื่อเลือกเมนู
 const setActiveMenu = (menuName) => {
@@ -319,30 +321,37 @@ const toggleMobileNav = () => {
   mobileNavOpen.value = !mobileNavOpen.value;
 };
 
-// ฟังก์ชันตรวจจับคลิกนอกเมนูเพื่อปิดเมนูย่อย
-const closeMenuOnOutsideClick = (event) => {
-  // ตรวจสอบว่าคลิกเกิดขึ้นภายใน Hamburger Menu
-  const mobileNav = document.querySelector(".sm:hidden");
-  const submenu = mobileNav.querySelector(".submenu");
-
-  // ถ้าคลิกภายนอก Hamburger Menu หรือเมนูย่อย ให้ปิดเมนูย่อย
-  if (mobileNav && !mobileNav.contains(event.target)) {
-    mobileNavOpen.value = false; // ปิด Hamburger Menu
-    openMenu.value = null; // ปิดเมนูย่อย
-  } else if (submenu && !submenu.contains(event.target)) {
-    // ถ้าคลิกภายนอกเมนูย่อยให้ปิดเมนูย่อย
+// ฟังก์ชันปิด Hamburger Menu เมื่อคลิกนอกพื้นที่
+const handleClickOutsideHamburger = (event) => {
+  if (
+    hamburgerMenuRef.value &&
+    !hamburgerMenuRef.value.contains(event.target)
+  ) {
     openMenu.value = null;
   }
 };
 
-// ใช้ onMounted และ onBeforeUnmount เพื่อติดตามและลบ event listener
+// ฟังก์ชันปิดเมนูย่อยหน้าจอปกติเมื่อคลิกนอกพื้นที่
+const handleClickOutsideDesktop = (event) => {
+  if (desktopMenuRef.value && !desktopMenuRef.value.contains(event.target)) {
+    openMenu.value = null;
+  }
+};
+// เพิ่ม Event Listener เมื่อ Component ถูก Mounted
 onMounted(() => {
-  document.addEventListener("click", closeMenuOnOutsideClick);
+  window.addEventListener("click", handleClickOutsideHamburger);
+  window.addEventListener("click", handleClickOutsideDesktop);
 });
 
+// ลบ Event Listener เมื่อ Component ถูก Unmounted
 onBeforeUnmount(() => {
-  document.removeEventListener("click", closeMenuOnOutsideClick);
+  window.removeEventListener("click", handleClickOutsideHamburger);
+  window.removeEventListener("click", handleClickOutsideDesktop);
 });
+// ฟังก์ชันเปิด/ปิดเมนูย่อยสำหรับ Hamburger Menu
+const toggleMobileMenu = (menuName) => {
+  openMobileMenu.value = openMobileMenu.value === menuName ? null : menuName;
+};
 </script>
 
 <style scoped>

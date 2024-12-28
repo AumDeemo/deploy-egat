@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import adminLayouts from "~/layouts/adminLayouts.vue";
 
 const materials = ref([]);
@@ -8,9 +8,34 @@ const modalType = ref(null);
 const quantity = ref("");
 const searchQuery = ref(""); // State สำหรับช่องค้นหา
 const selectedImage = ref(null);
-const selectedCategory = ref(""); // เก็บหมวดหมู่ที่เลือก
+const selectedCategory = ref([]); // เก็บหมวดหมู่ที่เลือก
 const categories = ref([]); // เก็บหมวดหมู่ทั้งหมด
+const isCategoryOpen = ref(false); // สถานะเปิด-ปิด dropdown หมวดหมู่
+const categoryDropdownRef = ref(null); // สำหรับอ้างอิง dropdown หมวดหมู่
 
+// ฟังก์ชันเปิด/ปิดหมวดหมู่
+const toggleCategory = () => {
+  isCategoryOpen.value = !isCategoryOpen.value;
+};
+
+// ฟังก์ชันปิด dropdown เมื่อคลิกนอกพื้นที่
+const handleClickOutsideCategory = (event) => {
+  if (
+    categoryDropdownRef.value && // ตรวจสอบว่า dropdown ถูก mount แล้ว
+    !categoryDropdownRef.value.contains(event.target) // ตรวจสอบว่าคลิกนอกพื้นที่ dropdown
+  ) {
+    isCategoryOpen.value = false; // ปิด dropdown
+  }
+};
+// เพิ่ม Event Listener เมื่อคอมโพเนนต์ถูก mounted
+onMounted(() => {
+  window.addEventListener("click", handleClickOutsideCategory);
+});
+
+// ลบ Event Listener เมื่อคอมโพเนนต์ถูก unmounted
+onBeforeUnmount(() => {
+  window.removeEventListener("click", handleClickOutsideCategory);
+});
 // Modal types
 const MODAL_TYPES = {
   IMPORT: "import",
@@ -85,34 +110,35 @@ const fetchMaterials = async () => {
 // กรองวัสดุตามหมวดหมู่และคำค้นหา
 const filteredMaterials = computed(() => {
   let filtered = materials.value;
-  
-  // กรองตามหมวดหมู่ที่เลือก
-  if (selectedCategory.value) {
-    filtered = filtered.filter(
-      (material) => material.category === selectedCategory.value
-    );
+
+  if (selectedCategory.value.length > 0) {
+    filtered = filtered.filter((material) => {
+      const materialCategories = Array.isArray(material.category)
+        ? material.category
+        : material.category?.split(",") || [];
+      return selectedCategory.value.some((cat) => materialCategories.includes(cat));
+    });
   }
 
   // กรองตามคำค้นหาหลายคำที่พิมพ์ (ค้นหาจากชื่อวัสดุและหมวดหมู่)
   if (searchQuery.value) {
-    const searchTerms = searchQuery.value.toLowerCase().split(" "); // แยกคำค้นหา
-
+    const searchTerms = searchQuery.value.toLowerCase().split(" ");
     filtered = filtered.filter((material) => {
-      // ตรวจสอบทุกคำในคำค้นหาที่ถูกแยก
+      const materialCategories = Array.isArray(material.category)
+        ? material.category
+        : material.category?.split(",") || [];
       return searchTerms.every((term) => {
         return (
-          (material.name?.toLowerCase().includes(term)) || // ค้นหาจากชื่อวัสดุ
-          (material.category?.toLowerCase().includes(term)) || // ค้นหาจากหมวดหมู่
-          (material.partnumber?.toLowerCase().includes(term))   // ค้นหาจาก Part Number
+          material.name?.toLowerCase().includes(term) ||
+          materialCategories.some((cat) => cat.toLowerCase().includes(term)) ||
+          material.partnumber?.toLowerCase().includes(term)
         );
       });
     });
   }
 
-  console.log(filtered); // ตรวจสอบผลลัพธ์ที่ถูกกรอง
   return filtered;
 });
-
 
 const openModal = (type, material) => {
   modalType.value = type;
@@ -255,17 +281,66 @@ onMounted(async () => {
           placeholder="ค้นหา"
           class="w-1/3 p-3 border border-gray-300 rounded-full text-center shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200 ease-in-out"
         />
-
-        <!-- Dropdown หมวดหมู่ -->
-        <select
-          v-model="selectedCategory"
-          class="w-1/7 p-3 border border-gray-300 rounded-full text-center shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200 ease-in-out"
+      </div>
+      <!-- หมวดหมู่ -->
+      <div class="form-control mt-5 select-none relative" ref="categoryDropdownRef">
+        <label
+          @click="toggleCategory"
+          class="cursor-pointer flex items-center justify-center bg-blue-700 text-white p-3 border border-blue-800 rounded-lg shadow-lg hover:bg-blue-800 transition duration-300"
         >
-          <option value="">ทั้งหมด</option>
-          <option v-for="cat in categories" :key="cat" :value="cat">
-            {{ cat }}
-          </option>
-        </select>
+          <span class="font-semibold text-lg">หมวดหมู่</span>
+          <span
+            class="ml-2 transition-transform duration-300"
+            :class="{ 'rotate-180': isCategoryOpen }"
+          >
+            ▼
+          </span>
+        </label>
+
+        <!-- เมนูย่อย -->
+        <div
+          v-if="isCategoryOpen"
+          class="menu-dropdown absolute bg-white p-5 rounded-lg border border-gray-300 shadow-2xl mt-2 z-50 max-h-72 overflow-y-auto w-full"
+          style="top: calc(100% + 0.5rem)"
+        >
+          <ul class="space-y-3">
+            <li
+              v-for="cat in categories"
+              :key="cat"
+              class="flex items-center gap-4 p-3 bg-gray-50 hover:bg-blue-50 rounded-lg shadow-sm transition duration-200 cursor-pointer"
+              @click="toggleCategorySelection(cat)"
+            >
+              <input
+                type="checkbox"
+                :id="cat"
+                :value="cat"
+                v-model="selectedCategory"
+                class="cursor-pointer accent-blue-700 w-5 h-5"
+                @click.stop
+              />
+              <label
+                :for="cat"
+                class="flex items-center gap-3 text-gray-700 text-base cursor-pointer"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-blue-700"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 6h16M4 12h8m-8 6h16"
+                  />
+                </svg>
+                <span>{{ cat }}</span>
+              </label>
+            </li>
+          </ul>
+        </div>
       </div>
 
       <!-- Materials Table -->
@@ -789,4 +864,67 @@ onMounted(async () => {
 .table th:last-child {
   border-right: 2px solid #ff9900; /* เพิ่มเส้นขอบพิเศษ */
 }
+.form-control .absolute {
+  background: linear-gradient(90deg, #ffffff 0%, #f9fafb 100%);
+  border: 1px solid #e5e7eb;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.form-control label {
+  font-family: "Prompt", sans-serif;
+}
+
+.form-control .absolute ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.form-control .absolute ul li {
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.form-control .absolute ul li:hover {
+  background-color: #e0f2fe;
+}
+
+.form-control .absolute ul li svg {
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.form-control .absolute ul li:hover svg {
+  transform: scale(1.2);
+}
+/* Scrollbar Styling */
+.menu-dropdown {
+  scrollbar-width: thin; /* สำหรับ Firefox */
+  scrollbar-color: #007bff #f1f1f1; /* สีของ scrollbar และพื้นหลัง */
+}
+
+.menu-dropdown::-webkit-scrollbar {
+  width: 8px; /* ความกว้างของ scrollbar */
+}
+
+.menu-dropdown::-webkit-scrollbar-thumb {
+  background: #007bff; /* สีของ scrollbar */
+  border-radius: 4px; /* มุมโค้งมนของ scrollbar */
+}
+
+.menu-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #0056b3; /* สีเมื่อ hover บน scrollbar */
+}
+
+.menu-dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1; /* สีพื้นหลังของ scrollbar */
+  border-radius: 4px; /* มุมโค้งมนของ track */
+}
+
+/* เพิ่มเอฟเฟกต์แบบ smooth */
+.menu-dropdown {
+  scroll-behavior: smooth;
+}
 </style>
+//sparepartslist admin// V3

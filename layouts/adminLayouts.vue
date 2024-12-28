@@ -26,6 +26,7 @@
     <!-- Mobile Sidebar (Overlay) -->
     <div
       v-if="mobileNavOpen"
+      ref="hamburgerMenuRef"
       class="fixed inset-0 bg-gray-800 bg-opacity-75 z-40 sm:hidden"
       @click="toggleMobileNav"
     >
@@ -64,6 +65,7 @@
               <!-- เมนูย่อย -->
               <ul
                 v-if="openMenu === menu.name"
+                ref="menuRef"
                 class="hamburger-submenu absolute left-0 top-full bg-white shadow-md rounded-lg"
               >
                 <li v-for="item in menu.items" :key="item.name" class="mb-2">
@@ -114,7 +116,7 @@
         </ul>
 
         <!-- เมนู -->
-        <div class="pr-2 pl-2 flex-grow overflow-y-auto select-none">
+        <div class="pr-2 pl-2 flex-grow overflow-y-auto select-none" ref="desktopMenuRef">
           <div v-for="menu in menus" :key="menu.name" class="relative">
             <!-- ตรวจสอบว่ามี link -->
             <div
@@ -246,8 +248,9 @@
                   d="M4.867 19.125h.008v.008h-.008v-.008Z"
                 />
               </svg>
+              <!-- title bar -->
             </div>
-            <p class="text-base">รายการอะไหล่</p>
+            <p class="text-base">{{ selectedMenu }}</p>
           </div>
         </div>
         <div class="p-4 overflow-x-auto h-[calc(100vh-160px)]">
@@ -261,20 +264,57 @@
 <script setup>
 import { LogoutIcon } from "@vue-hero-icons/outline";
 import { useAuthStore } from "#build/imports";
-import { ref } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 
 // ตัวแปรจัดการเมนู
 const openMenu = ref(null);
 const openMobileMenu = ref(null); // เปิด/ปิด Hamburger Submenu
 const mobileNavOpen = ref(false); // ควบคุมการเปิด/ปิด Hamburger Menu
+const hamburgerMenuRef = ref(null); // สำหรับ Hamburger Menu
+const desktopMenuRef = ref(null); // สำหรับเมนูย่อยหน้าจอปกติ
+
+// ตัวแปรจัดการชื่อเมนูที่กด
+const selectedMenu = ref("รายการอะไหล่");
 
 const toggleMobileNav = () => {
   mobileNavOpen.value = !mobileNavOpen.value;
 };
+
 // ฟังก์ชันเปิด/ปิดเมนู
 const toggleMenu = (menuName) => {
   openMenu.value = openMenu.value === menuName ? null : menuName;
+  selectedMenu.value = menuName; // อัปเดตชื่อเมนูที่เลือก
 };
+
+// ฟังก์ชันปิดเมนูย่อยใน Hamburger Menu เมื่อคลิกนอกพื้นที่
+const handleClickOutsideSubMenu = (event) => {
+  const isClickOutsideHamburgerMenu =
+    hamburgerMenuRef.value && !hamburgerMenuRef.value.contains(event.target);
+  const isClickOutsideSubMenu = menuRef.value && !menuRef.value.contains(event.target);
+
+  if (isClickOutsideHamburgerMenu && isClickOutsideSubMenu) {
+    openMenu.value = null; // ปิดเมนูย่อย
+    mobileNavOpen.value = false; // ปิด hamburger menu
+  }
+};
+
+// ฟังก์ชันปิดเมนูย่อยหน้าจอปกติเมื่อคลิกนอกพื้นที่
+const handleClickOutsideDesktop = (event) => {
+  if (desktopMenuRef.value && !desktopMenuRef.value.contains(event.target)) {
+    openMenu.value = null;
+  }
+};
+// เพิ่ม Event Listener เมื่อ Component ถูก Mounted
+onMounted(() => {
+  window.addEventListener("click", handleClickOutsideSubMenu);
+  window.addEventListener("click", handleClickOutsideDesktop);
+});
+
+// ลบ Event Listener เมื่อ Component ถูก Unmounted
+onBeforeUnmount(() => {
+  window.removeEventListener("click", handleClickOutsideSubMenu);
+  window.removeEventListener("click", handleClickOutsideDesktop);
+});
 // ฟังก์ชันเปิด/ปิดเมนูย่อยสำหรับ Hamburger Menu
 const toggleMobileMenu = (menuName) => {
   openMobileMenu.value = openMobileMenu.value === menuName ? null : menuName;
@@ -512,3 +552,4 @@ li:hover {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
 }
 </style>
+//adminLayout//VV

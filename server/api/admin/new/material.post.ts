@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
                 name: fields.name[0],
                 partnumber: fields.partnumber[0],
                 totalAmount: parseInt(fields.totalAmount[0]),
-                imageUrl: `/material/${fileName}`,
+                imageUrl: fileName ? `/material/${fileName}` : null,
                 category: fields.category[0],
             },
         });
@@ -53,3 +53,4 @@ export default defineEventHandler(async (event) => {
         };
     }
 })
+//material.post.ts//
