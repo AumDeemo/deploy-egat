@@ -1,7 +1,9 @@
 <template>
   <adminLayouts>
     <!-- หัวข้อ -->
-    <h1 class="text-center text-5xl font-extrabold text-gray-800 tracking-wider mb-5 mt-5">
+    <h1
+      class="text-center text-5xl font-extrabold text-gray-800 tracking-wider mb-5 mt-5"
+    >
       เครื่องจักรที่รับผิดชอบ
     </h1>
 
@@ -16,7 +18,10 @@
     </div>
 
     <!-- ฟอร์มกรอกข้อมูลเครื่องจักร -->
-    <div v-if="isFormOpen" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
+    <div
+      v-if="isFormOpen"
+      class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50"
+    >
       <div
         class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full mx-4 md:mx-0 relative max-h-[90vh] overflow-y-auto"
       >
@@ -35,42 +40,89 @@
         <form @submit.prevent="saveMachine">
           <div class="mb-4">
             <label for="name" class="block text-sm font-semibold">ชื่อเครื่องจักร</label>
-            <input v-model="newMachine.name" type="text" id="name" class="w-full p-2 border rounded" required />
+            <input
+              v-model="newMachine.name"
+              type="text"
+              id="name"
+              class="w-full p-2 border rounded"
+              required
+            />
           </div>
 
           <div class="mb-4">
             <label for="brand" class="block text-sm font-semibold">ยี่ห้อ</label>
-            <input v-model="newMachine.brand" type="text" id="brand" class="w-full p-2 border rounded" required />
+            <input
+              v-model="newMachine.brand"
+              type="text"
+              id="brand"
+              class="w-full p-2 border rounded"
+              required
+            />
           </div>
 
           <div class="mb-4">
             <label for="model" class="block text-sm font-semibold">รุ่น</label>
-            <input v-model="newMachine.model" type="text" id="model" class="w-full p-2 border rounded" required />
+            <input
+              v-model="newMachine.model"
+              type="text"
+              id="model"
+              class="w-full p-2 border rounded"
+              required
+            />
           </div>
 
           <div class="mb-4">
             <label for="num" class="block text-sm font-semibold">หมายเลขกฟผ.</label>
-            <input v-model="newMachine.num" type="text" id="num" class="w-full p-2 border rounded" required />
+            <input
+              v-model="newMachine.num"
+              type="text"
+              id="num"
+              class="w-full p-2 border rounded"
+              required
+            />
           </div>
 
           <div class="mb-4">
             <label for="capacity" class="block text-sm font-semibold">ความจุ</label>
-            <input v-model="newMachine.capacity" type="text" id="capacity" class="w-full p-2 border rounded" required />
+            <input
+              v-model="newMachine.capacity"
+              type="text"
+              id="capacity"
+              class="w-full p-2 border rounded"
+              required
+            />
           </div>
 
           <div class="mb-4">
             <label for="carry" class="block text-sm font-semibold">น้ำหนักยก</label>
-            <input v-model="newMachine.carry" type="text" id="carry" class="w-full p-2 border rounded" required />
+            <input
+              v-model="newMachine.carry"
+              type="text"
+              id="carry"
+              class="w-full p-2 border rounded"
+              required
+            />
           </div>
 
           <div class="mb-4">
             <label for="carNum" class="block text-sm font-semibold">เลขทะเบียน</label>
-            <input v-model="newMachine.carNum" type="text" id="carNum" class="w-full p-2 border rounded" required />
+            <input
+              v-model="newMachine.carNum"
+              type="text"
+              id="carNum"
+              class="w-full p-2 border rounded"
+              required
+            />
           </div>
 
           <div class="mb-4">
             <label for="image" class="block text-sm font-semibold">เลือกภาพ</label>
-            <input @change="handleImageUpload" type="file" id="image" class="w-full p-2 border rounded" />
+            <input
+              @change="handleImageUpload"
+              type="file"
+              id="image"
+              class="w-full p-2 border rounded"
+            />
           </div>
 
           <div class="flex justify-end">
@@ -258,13 +310,16 @@ const deleteMachine = async (id) => {
         method: "DELETE",
       });
 
-      if (!response.ok) throw new Error("Failed to delete motor");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to delete motor");
+      }
 
       alert("ลบข้อมูลสำเร็จ");
       await fetchMachines();
     } catch (error) {
       console.error("Error deleting motor:", error);
-      alert("เกิดข้อผิดพลาดในการลบข้อมูล");
+      alert(`เกิดข้อผิดพลาด: ${error.message}`);
     }
   }
 };
@@ -286,3 +341,4 @@ onMounted(fetchMachines);
   background-color: #555;
 }
 </style>
+//admin//usingmotor//index.vue

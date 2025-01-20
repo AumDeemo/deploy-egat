@@ -1,4 +1,5 @@
 <template>
+  <!-- แถบเมนู -->
   <div class="flex flex-col h-full select-none">
     <!-- Mobile Hamburger Menu Button -->
     <button
@@ -27,71 +28,74 @@
     <div
       v-if="mobileNavOpen"
       ref="hamburgerMenuRef"
-      class="fixed inset-0 bg-gray-800 bg-opacity-75 z-40 sm:hidden"
+      class="fixed top-0 right-0 h-full w-[300px] bg-gray-800 bg-opacity-75 z-40 sm:hidden"
       @click="toggleMobileNav"
     >
-      <div
-        class="absolute left-0 top-0 h-full w-full bg-white p-4 overflow-auto shadow-lg"
-        @click.stop
-      >
-        <!-- Logo -->
-        <img
-          src="https://www.egat.co.th/home/wp-content/uploads/2021/07/LogoEGAT-TH.png"
-          alt="EGAT-LOGO"
-          class="w-36 mx-auto mb-4"
-        />
-        <!-- Mobile Menu -->
-        <ul>
-          <li v-for="menu in menus" :key="menu.name" class="mb-4">
-            <div v-if="menu.items">
-              <!-- เมนูหลัก -->
-              <div
-                @click="toggleMenu(menu.name)"
-                class="flex items-center justify-between cursor-pointer py-2 px-4 hover:bg-gray-300 rounded-lg"
-              >
-                <span class="text-gray-700">{{ menu.name }}</span>
-                <!-- ไอคอนลูกศร -->
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  :class="openMenu === menu.name ? 'rotate-180' : ''"
-                  class="h-5 w-5 transition-transform"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  fill="none"
+      <transition name="slide-fade-left">
+        <div
+          class="absolute left-0 top-0 h-full w-full bg-white p-4 overflow-auto shadow-lg"
+          @click.stop
+        >
+          <!-- Logo -->
+          <img
+            src="https://www.egat.co.th/home/wp-content/uploads/2021/07/LogoEGAT-TH.png"
+            alt="EGAT-LOGO"
+            class="w-36 mx-auto mb-4"
+          />
+          <!-- Mobile Menu -->
+          <ul>
+            <li v-for="menu in menus" :key="menu.name" class="mb-4">
+              <div v-if="menu.items">
+                <!-- เมนูหลัก -->
+                <div
+                  @click="toggleMenu(menu.name, menu.link)"
+                  class="flex items-center justify-between cursor-pointer py-2 px-4 hover:bg-gray-300 rounded-lg"
                 >
-                  <path d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-              <!-- เมนูย่อย -->
-              <ul
-                v-if="openMenu === menu.name"
-                ref="menuRef"
-                class="hamburger-submenu absolute left-0 top-full bg-white shadow-md rounded-lg"
-              >
-                <li v-for="item in menu.items" :key="item.name" class="mb-2">
-                  <RouterLink
-                    :to="item.link"
-                    class="block py-2 px-4 text-gray-600 hover:bg-gray-200 rounded-lg"
+                  <span class="text-gray-700">{{ menu.name }}</span>
+                  <!-- ไอคอนลูกศร -->
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    :class="openMenu === menu.name ? 'rotate-180' : ''"
+                    class="h-5 w-5 transition-transform"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    fill="none"
                   >
-                    {{ item.name }}
-                  </RouterLink>
-                </li>
-              </ul>
-            </div>
-
-            <!-- เมนูปกติ (ไม่มีเมนูย่อย) -->
-            <RouterLink
-              v-else
-              :to="menu.link"
-              class="block py-2 px-4 text-gray-700 hover:bg-gray-300 rounded-lg"
-            >
-              {{ menu.name }}
-            </RouterLink>
-          </li>
-        </ul>
-        <!-- Close Button -->
-        <button class="text-gray-700 mt-4" @click="toggleMobileNav">ปิดเมนู</button>
-      </div>
+                    <path d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+                <!-- เมนูย่อย -->
+                <ul
+                  v-if="openMenu === menu.name"
+                  ref="menuRef"
+                  class="hamburger-submenu bg-gray-50 shadow-md rounded-lg"
+                >
+                  <li v-for="item in menu.items" :key="item.name" class="mb-2">
+                    <RouterLink
+                      :to="item.link"
+                      class="block py-2 px-4 text-gray-600 hover:bg-gray-200 rounded-lg"
+                      @click.prevent="toggleMenu(item.name, item.link)"
+                    >
+                      {{ item.name }}
+                    </RouterLink>
+                  </li>
+                </ul>
+              </div>
+              <!-- เมนูปกติ (ไม่มีเมนูย่อย) -->
+              <RouterLink
+                v-else
+                :to="menu.link"
+                class="block py-2 px-4 text-gray-700 hover:bg-gray-300 rounded-lg"
+                @click="toggleMenu(menu.name, menu.link)"
+              >
+                {{ menu.name }}
+              </RouterLink>
+            </li>
+          </ul>
+          <!-- Close Button -->
+          <button class="text-gray-700 mt-4" @click="toggleMobileNav">ปิดเมนู</button>
+        </div>
+      </transition>
     </div>
 
     <div class="flex select-none overflow-y-hidden">
@@ -100,22 +104,27 @@
       >
         <!-- Header -->
         <div class="egat-logo-container">
-          <img
-            src="https://www.egat.co.th/home/wp-content/uploads/2021/07/LogoEGAT-TH.png"
-            alt="EGAT-LOGO"
-            class="w-36 h-auto"
-          />
+          <router-link to="/admin">
+            <img
+              src="https://www.egat.co.th/home/wp-content/uploads/2021/07/LogoEGAT-TH.png"
+              alt="EGAT-LOGO"
+              class="w-36 h-auto cursor-pointer"
+            />
+          </router-link>
         </div>
+
         <!-- Menu Title -->
-        <ul class="menu bg-green-200 w-70 mt-0 h-[40px] flex items-center justify-center">
+        <ul
+          class="menu bg-emerald-200 w-70 mt-0 h-[40px] flex items-center justify-center"
+        >
           <h2
             class="menu-title font-light text-zinc-900 text-base text-center flex items-center justify-center w-full h-full"
           >
-            menu
+            ≡ menu
           </h2>
         </ul>
 
-        <!-- เมนู -->
+        <!-- เมนู หลัก -->
         <div class="pr-2 pl-2 flex-grow overflow-y-auto select-none" ref="desktopMenuRef">
           <div v-for="menu in menus" :key="menu.name" class="relative">
             <!-- ตรวจสอบว่ามี link -->
@@ -127,6 +136,7 @@
                   ? 'bg-teal-600 shadow-lg'
                   : 'bg-teal-500 hover:bg-teal-600')
               "
+              @click="toggleMenu(menu.name, menu.link)"
             >
               <a
                 :href="menu.link"
@@ -140,7 +150,7 @@
             <div v-else>
               <div
                 class="flex items-center mt-3 p-2 bg-teal-500 text-white rounded-xl cursor-pointer transition-colors duration-300 hover:bg-teal-600"
-                @click="toggleMenu(menu.name)"
+                @click="toggleMenu(menu.name, menu.link)"
               >
                 <p class="text-base select-none ml-2">{{ menu.name }}</p>
                 <span class="ml-auto mr-2">
@@ -179,7 +189,7 @@
                     <RouterLink
                       :to="item.link"
                       class="block w-full h-full text-base ml-2"
-                      @click="setActiveSubMenu(item.name)"
+                      @click="toggleMenu(item.name, item.link)"
                     >
                       {{ item.name }}
                     </RouterLink>
@@ -192,8 +202,8 @@
 
         <!-- ปุ่มออกจากระบบ -->
         <div
-          @click="authStore.logout()"
-          class="logout-button bg-red-400 h-20 cursor-pointer flex justify-center items-center select-none mt-auto"
+          @click="logoutAndRedirect"
+          class="logout-button bg-red-400 h-12 cursor-pointer flex justify-center items-center select-none mt-auto"
         >
           <div class="flex gap-2 justify-center items-center">
             <svg
@@ -226,33 +236,46 @@
             แผนก <span class="text-orange-600">หบย-ช</span>
           </p>
         </div>
-        <div class="bg-lime-200 w-full h-10 pt-2 pl-5">
-          <div class="flex gap-2">
-            <div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="size-6"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M21.75 6.75a4.5 4.5 0 0 1-4.884 4.484c-1.076-.091-2.264.071-2.95.904l-7.152 8.684a2.548 2.548 0 1 1-3.586-3.586l8.684-7.152c.833-.686.995-1.874.904-2.95a4.5 4.5 0 0 1 6.336-4.486l-3.276 3.276a3.004 3.004 0 0 0 2.25 2.25l3.276-3.276c.256.565.398 1.192.398 1.852Z"
-                />
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M4.867 19.125h.008v.008h-.008v-.008Z"
-                />
-              </svg>
-              <!-- title bar -->
-            </div>
-            <p class="text-base">{{ selectedMenu }}</p>
+
+        <!-- title bar -->
+        <div
+          class="bg-lime-200 w-full h-10 shadow-md rounded-lg flex justify-center items-center"
+        >
+          <div class="flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5"
+              />
+            </svg>
+            <p class="text-lg font-semibold text-gray-900 tracking-wider">
+              {{ selectedMenu }}
+            </p>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5"
+              />
+            </svg>
           </div>
         </div>
+        <!-- ตาราง -->
         <div class="p-4 overflow-x-auto h-[calc(100vh-160px)]">
           <slot />
         </div>
@@ -264,7 +287,11 @@
 <script setup>
 import { LogoutIcon } from "@vue-hero-icons/outline";
 import { useAuthStore } from "#build/imports";
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
+
+const router = useRouter();
+const route = useRoute();
 
 // ตัวแปรจัดการเมนู
 const openMenu = ref(null);
@@ -280,30 +307,34 @@ const toggleMobileNav = () => {
   mobileNavOpen.value = !mobileNavOpen.value;
 };
 
-// ฟังก์ชันเปิด/ปิดเมนู
-const toggleMenu = (menuName) => {
-  openMenu.value = openMenu.value === menuName ? null : menuName;
-  selectedMenu.value = menuName; // อัปเดตชื่อเมนูที่เลือก
+// ฟังก์ชันเปิด/ปิดเมนู และอัปเดตชื่อเมนู
+const toggleMenu = (menuName, link) => {
+  if (link) {
+    // เปลี่ยนเส้นทางเมื่อมีลิงก์
+    router.push(link).catch((err) => {
+      console.error("Navigation Error:", err);
+    });
+    mobileNavOpen.value = false; // ปิด Hamburger Menu เมื่อเลือกเมนู
+  } else {
+    // เปิด/ปิดเมนูย่อย
+    openMenu.value = openMenu.value === menuName ? null : menuName;
+  }
 };
-
 // ฟังก์ชันปิดเมนูย่อยใน Hamburger Menu เมื่อคลิกนอกพื้นที่
 const handleClickOutsideSubMenu = (event) => {
   const isClickOutsideHamburgerMenu =
     hamburgerMenuRef.value && !hamburgerMenuRef.value.contains(event.target);
-  const isClickOutsideSubMenu = menuRef.value && !menuRef.value.contains(event.target);
-
-  if (isClickOutsideHamburgerMenu && isClickOutsideSubMenu) {
+  if (isClickOutsideHamburgerMenu) {
     openMenu.value = null; // ปิดเมนูย่อย
-    mobileNavOpen.value = false; // ปิด hamburger menu
   }
 };
-
 // ฟังก์ชันปิดเมนูย่อยหน้าจอปกติเมื่อคลิกนอกพื้นที่
 const handleClickOutsideDesktop = (event) => {
   if (desktopMenuRef.value && !desktopMenuRef.value.contains(event.target)) {
     openMenu.value = null;
   }
 };
+
 // เพิ่ม Event Listener เมื่อ Component ถูก Mounted
 onMounted(() => {
   window.addEventListener("click", handleClickOutsideSubMenu);
@@ -315,10 +346,12 @@ onBeforeUnmount(() => {
   window.removeEventListener("click", handleClickOutsideSubMenu);
   window.removeEventListener("click", handleClickOutsideDesktop);
 });
+
 // ฟังก์ชันเปิด/ปิดเมนูย่อยสำหรับ Hamburger Menu
 const toggleMobileMenu = (menuName) => {
   openMobileMenu.value = openMobileMenu.value === menuName ? null : menuName;
 };
+
 const authStore = useAuthStore();
 
 const activeSubMenu = ref(null);
@@ -327,47 +360,102 @@ const setActiveSubMenu = (menuName) => {
   activeSubMenu.value = menuName;
 };
 
+// เมนูทั้งหมด
 const menus = ref([
   {
-    name: "รายการอะไหล่",
-    link: "/admin/sparepartslist", // ใช้ลิงก์แทนเมนูย่อย
+    name: "📊 ภาพรวมระบบ",
+    link: "/admin",
   },
   {
+    name: "⚙️ รายการอะไหล่",
+    link: "/admin/sparepartslist",
+  },
+  /*{
     name: "เครื่องจักรที่รับผิดชอบ",
     link: "/admin/usingmotor",
-  },
-  {
+  },*/
+  /*{
     name: "Fork-Lift",
     link: "/admin/forklift",
-  },
+  },*/
   {
-    name: "รถยนต์บริการ",
-    link: "/admin/servicemotor",
-  },
-  {
-    name: "ครุภัณฑ์/เครื่องมือ",
+    name: "📦 ครุภัณฑ์/เครื่องมือ",
     items: [
-      { name: "ครุภัณฑ์", link: "/admin/crument/curu" },
-      { name: "เครื่องมือเครื่องใช้", link: "/admin/crument/using" },
+      { name: " ครุภัณฑ์", link: "/admin/crument/curu" },
+      { name: " เครื่องมือเครื่องใช้", link: "/admin/crument/using" },
       {
-        name: "เครื่องมือเครื่องใช้ราคาต่ำกว่า 10,000 บาท",
+        name: " เครื่องมือเครื่องใช้ < 10K",
         link: "/admin/crument/using10000",
       },
     ],
   },
-  {
+  /*{
     name: "Oil Analysis",
-    link: "/admin/oilanalysis", // ใช้ลิงก์แทนเมนูย่อย
-  },
-  {
+    link: "/admin/oilanalysis",
+  },*/
+  /*{
+    name: "งานเบิกซื้อ/จ้าง",
+    items: [
+      { name: "งานเบิกซื้อ", link: "/admin/buy" },
+      { name: "งานเบิกจ้าง", link: "/admin/hire" },
+    ],
+  },*/
+  /*{
     name: "งานเบิกซื้อ",
-    link: "/admin/buy", // ใช้ลิงก์แทนเมนูย่อย
-  },
-  {
+    link: "/admin/buy",
+  },*/
+  /*{
     name: "งานเบิกจ้าง",
-    link: "/admin/hire", // ใช้ลิงก์แทนเมนูย่อย
-  },
+    link: "/admin/hire",
+  },*/
 ]);
+
+// ใช้ Watch เพื่อติดตามการเปลี่ยนแปลงของเส้นทาง
+watch(
+  () => route.path,
+  (newPath) => {
+    // ตรวจสอบเมนูย่อยก่อน
+    for (const menu of menus.value) {
+      if (menu.items) {
+        const matchedSubMenu = menu.items.find((item) => item.link === newPath);
+        if (matchedSubMenu) {
+          selectedMenu.value = matchedSubMenu.name;
+          return; // ถ้าพบเมนูย่อยแล้ว หยุดการทำงาน
+        }
+      }
+    }
+
+    // ถ้าไม่พบในเมนูย่อย ให้ตรวจสอบเมนูหลัก
+    const matchedMenu = menus.value.find((menu) => menu.link === newPath);
+    if (matchedMenu) {
+      selectedMenu.value = matchedMenu.name;
+    }
+  },
+  { immediate: true }
+);
+const isModalOpen = ref(false);
+const notifications = ref([
+  { id: 1, message: "New message from admin." },
+  { id: 2, message: "System maintenance scheduled." },
+  { id: 3, message: "New updates available." },
+]);
+
+const openModal = () => {
+  isModalOpen.value = true;
+};
+
+const closeModal = () => {
+  isModalOpen.value = false;
+};
+
+const logoutAndRedirect = async () => {
+  try {
+    await authStore.logout(); // ล็อกเอาต์
+    router.push("/login"); // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
+  } catch (error) {
+    console.error("Error logging out:", error);
+  }
+};
 </script>
 
 <style scoped>
@@ -449,17 +537,35 @@ li:hover {
   font-weight: bold;
 }
 
-/* Hamburger Menu */
-.hamburger-submenu {
-  position: absolute;
+/* Hamburger Menu Overlay */
+.fixed.h-full {
+  width: 75%; /* ปรับความกว้างเป็น 75% หรือใช้ px เช่น 300px */
+  max-width: 300px;
+  right: auto; /* ย้ายเมนูไปด้านขวา */
   left: 0;
-  top: 100%;
-  background-color: white;
-  z-index: 50;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 0.5rem;
-  min-width: 100%;
+  border-left: 2px solid rgba(0, 0, 0, 0.1); /* เพิ่มขอบเมนู */
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.2); /* เพิ่มเงา */
+  animation: fadeInLeft 0.3s ease-in-out;
 }
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+/* Hamburger Menu Submenu */
+.hamburger-submenu {
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 .hamburger-submenu li {
   padding: 8px 12px;
   border-radius: 6px;
@@ -551,5 +657,69 @@ li:hover {
   transform: scale(0.95); /* ลดขนาดเล็กน้อยเมื่อกด */
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
 }
+/* Notification */
+.notification {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: #3b82f6; /* สีฟ้า */
+  color: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: opacity 0.3s ease-in-out;
+}
+.notification button {
+  background: none;
+  border: none;
+  color: inherit;
+  font-weight: bold;
+  cursor: pointer;
+}
+.notification button:hover {
+  color: #f3f4f6;
+}
+/* Slide and Fade Effect from Left */
+.slide-fade-left-enter-active,
+.slide-fade-left-leave-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.slide-fade-left-enter-from {
+  opacity: 0;
+  transform: translateX(-100%);
+}
+.slide-fade-left-enter-to {
+  opacity: 1;
+  transform: translateX(0);
+}
+.slide-fade-left-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
+.slide-fade-left-leave-to {
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+/* Smooth Transition for Menu Items */
+.hamburger-submenu li {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.hamburger-submenu li:hover {
+  transform: translateY(0);
+  opacity: 1;
+  background-color: #e0f2fe; /* เปลี่ยนสีพื้นหลัง */
+}
+.hamburger-submenu li:nth-child(1) {
+  transition-delay: 0.1s;
+}
+.hamburger-submenu li:nth-child(2) {
+  transition-delay: 0.2s;
+}
+.hamburger-submenu li:nth-child(3) {
+  transition-delay: 0.3s;
+}
 </style>
-//adminLayout//VV
+//adminLayout//VV//13:22//

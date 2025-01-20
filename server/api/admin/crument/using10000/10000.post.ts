@@ -1,46 +1,53 @@
-import { defineEventHandler, readMultipartFormData, createError } from 'h3';
 import { PrismaClient } from '@prisma/client';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import fs from 'fs';
+import formidable from 'formidable';
 
 const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
-  try {
-    // อ่านไฟล์ที่ถูกส่งมา
-    const formData = await readMultipartFormData(event);
-
-    if (!formData) {
-      throw createError({ statusCode: 400, statusMessage: 'No file uploaded.' });
-    }
-
-    const uploadDir = path.resolve('./public/crument/using10000');
-    await mkdir(uploadDir, { recursive: true }); // สร้างโฟลเดอร์หากไม่มี
-
-    // ดึงไฟล์ออกจาก formData
-    const fileData = formData.find((field) => field.name === 'file');
-    if (!fileData || !fileData.filename) {
-      throw createError({ statusCode: 400, statusMessage: 'Invalid file data.' });
-    }
-
-    const filePath = path.join(uploadDir, fileData.filename);
-
-    await writeFile(filePath, fileData.data);
-
-    // บันทึกข้อมูลลงในฐานข้อมูล
-    const savedFile = await prisma.using10000.create({
-      data: {
-        name: fileData.filename,
-        path: `/using10000/${fileData.filename}`,
-      },
+    const form = formidable({
+        uploadDir: './public/crument/using10000',
+        keepExtensions: true,
+        maxFileSize: 5 * 1024 * 1024,
     });
 
-    return {
-      success: true,
-      file: savedFile,
-    };
-  } catch (error) {
-    console.error(error);
-    throw createError({ statusCode: 500, statusMessage: 'Upload failed.' });
-  }
+    try {
+        const { fields, files } = await new Promise((resolve, reject) => {
+            form.parse(event.req, (err, fields, files) => {
+                if (err) reject(err);
+                resolve({ fields, files });
+            });
+        });
+
+        const uploadedFile = files.image[0];
+        const fileName = uploadedFile.newFilename;
+
+        const using10000 = await prisma.using10000.create({
+            data: {
+                number: fields.number[0] ? parseInt(fields.number[0]) : null,
+                name: fields.name[0] ,
+                brand: fields.brand[0],
+                curunumber: fields.curunumber[0],
+                partnumber: fields.partnumber[0],
+                usenumber: fields.usenumber[0],
+                date: fields.date[0] ? new Date(fields.date[0]) : null,
+                detial: fields.detial[0],
+                detialnumber: fields.detialnumber[0],
+                imageUrl: fileName ? `/crument/using10000/${fileName}` : null,
+            },
+        });
+
+        return {
+            status: 'success',
+            message: 'บันทึกข้อมูลสำเร็จ',
+            data: using10000,
+        };
+
+    } catch (error) {
+        console.error('Error:', error);
+        return {
+            status: 'error',
+            message: `เกิดข้อผิดพลาด: ${error.message}`,
+        };
+    }
 });

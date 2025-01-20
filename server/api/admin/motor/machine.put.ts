@@ -58,3 +58,4 @@ export default defineEventHandler(async (event) => {
     await prisma.$disconnect(); // ปิดการเชื่อมต่อกับฐานข้อมูล
   }
 });
+//api/admin/motor/machine.put.ts

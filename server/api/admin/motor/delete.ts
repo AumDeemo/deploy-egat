@@ -40,3 +40,4 @@ export default defineEventHandler(async (event) => {
     await prisma.$disconnect();
   }
 });
+//api//admin//motor//delete.ts

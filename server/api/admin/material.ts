@@ -1,4 +1,3 @@
-// server/api/admin/material.ts
 import { PrismaClient } from '@prisma/client';
 import formidable from 'formidable';
 import fs from 'fs';
@@ -163,3 +162,4 @@ export default defineEventHandler(async (event) => {
     }
   }
 });
+//api//admin//material.ts

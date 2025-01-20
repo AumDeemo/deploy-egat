@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
         data: {
             username,
             password: hashedPassword,
-            fullname
+            fullname,
         },
     });
 

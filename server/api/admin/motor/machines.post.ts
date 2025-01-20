@@ -83,3 +83,4 @@ export default defineEventHandler(async (event: H3Event) => {
     });
   });
 });
+//api/admin/motor/machines.post.ts

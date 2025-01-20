@@ -22,7 +22,7 @@
         <!-- Form -->
         <div>
           <div class="form-control mb-5">
-            <label for="email" class="text-gray-600 font-medium">อีเมล</label>
+            <label for="email" class="text-gray-600 font-medium">ID</label>
             <input
               v-model="username"
               type="email"
@@ -55,10 +55,10 @@
         <!-- Register Link -->
         <div class="mt-8 text-center">
           <RouterLink
-            to="/register"
+            to="/users"
             class="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-500 transition"
           >
-            สมัครสมาชิก
+            ย้อนกลับ
           </RouterLink>
         </div>
       </div>
@@ -75,6 +75,7 @@ const password = ref("");
 
 const loginError = ref("");
 const authStore = useAuthStore();
+const router = useRouter();
 
 const login = async () => {
   try {
@@ -87,6 +88,8 @@ const login = async () => {
     });
 
     authStore.login(response);
+
+    router.push("/admin/sparepartslist");
   } catch (error) {
     console.error("Login failed", error);
     loginError.value = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
@@ -127,3 +130,4 @@ const login = async () => {
   right: 0;
 }
 </style>
+//Login//

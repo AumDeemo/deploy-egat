@@ -20,17 +20,16 @@ model user {
 
 model material {
   id            Int             @id @default(autoincrement())
-  name          String          @unique
+  name          String
   partnumber    String?
   totalAmount   Int
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
-  imageUrl      String?    
-  category      String?            
-  exportHistory ExportHistory[] 
+  imageUrl      String?
+  category      String?
+  exportHistory ExportHistory[]
   importHistory ImportHistory[]
 }
-
 
 model ImportHistory {
   id         Int      @id @default(autoincrement())
@@ -77,7 +76,82 @@ model FilePO {
 }
 
 model Machine {
-  id        Int    @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
+  name      String
+  brand     String
+  model     String
+  capacity  String
+  createdAt DateTime @default(now())
+  carNum    String
+  carry     String
+  image     String?
+  num       String
+}
+
+model hireFilePR {
+  id        Int      @id @default(autoincrement())
+  name      String
+  path      String
+  createdAt DateTime @default(now())
+}
+
+model hireFilePO {
+  id        Int      @id @default(autoincrement())
+  name      String
+  path      String
+  createdAt DateTime @default(now())
+}
+
+model curu {
+  id           Int       @id @default(autoincrement())
+  name         String?
+  createdAt    DateTime  @default(now())
+  brand        String?
+  curunumber   String
+  date         DateTime?
+  detial       String
+  detialnumber String?
+  imageUrl     String?
+  number       Int?
+  partnumber   String
+  updatedAt    DateTime  @updatedAt
+  usenumber    String?
+}
+
+model using1 {
+  id           Int       @id @default(autoincrement())
+  number       Int?
+  name         String?
+  curunumber   String
+  partnumber   String
+  brand        String?
+  usenumber    String?
+  detial       String
+  detialnumber String?
+  date         DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  imageUrl     String?
+}
+
+model using10000 {
+  id           Int       @id @default(autoincrement())
+  number       Int?
+  name         String?
+  curunumber   String
+  partnumber   String
+  brand        String?
+  usenumber    String?
+  detial       String
+  detialnumber String?
+  date         DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  imageUrl     String?
+}
+
+model Forklift {
+  id        Int      @id @default(autoincrement())
   name      String
   brand     String
   model     String
@@ -86,26 +160,5 @@ model Machine {
   carry     String
   carNum    String
   image     String?
-  createdAt    DateTime @default(now())
-}
-//คุรุภัณ
-model curu {
-  id        Int      @id @default(autoincrement())
-  name      String
-  path      String
-  createdAt DateTime @default(now())
-}
-
-model using1 {
-  id        Int      @id @default(autoincrement())
-  name      String
-  path      String
-  createdAt DateTime @default(now())
-}
-
-model using10000 {
-  id        Int      @id @default(autoincrement())
-  name      String
-  path      String
   createdAt DateTime @default(now())
 }
