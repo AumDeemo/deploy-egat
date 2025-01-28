@@ -1,6 +1,9 @@
 <script setup>
 import userLayouts from "~/layouts/userLayouts.vue";
 import { ref, onMounted, computed } from "vue";
+import Fuse from "fuse.js";
+import { toast } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
 
 const materials = ref([]);
 const searchQuery = ref(""); // เก็บค่าคำค้นหา
@@ -13,6 +16,84 @@ const isNotificationOpen = ref(false); // สถานะเปิด/ปิด�
 const notificationDropdownRef = ref(null); // อ้างอิง dropdown แจ้งเตือน
 const isImageModalOpen = ref(false); // สถานะเปิด/ปิดโมดอล
 const modalImageUrl = ref(""); // เก็บ URL ของรูปภาพที่เลือก
+const currentPage = ref(1); // หน้าปัจจุบัน
+const itemsPerPage = 10; // จำนวนรายการต่อหน้า
+const isSearchModalOpen = ref(false); // สถานะเปิด/ปิด modal ค้นหา
+
+const fuseOptions = {
+  keys: ["name", "partnumber", "category"], // ฟิลด์ที่ต้องการค้นหา
+  threshold: 0.5, // ระดับความคลาดเคลื่อน (0 = ตรงทั้งหมด, 1 = ยอมรับได้ทุกระดับ)
+  includeScore: true, // แสดงคะแนนความตรง
+};
+
+// ฟังก์ชันสำหรับการเน้นคำค้นหา
+const highlightSearch = (text) => {
+  if (!searchQuery.value.trim()) return text; // ถ้า searchQuery ว่าง ให้คืนค่า text ปกติ
+  const regex = new RegExp(`(${searchQuery.value})`, "gi"); // ใช้คำค้นหาเป็น Regular Expression
+  return text.replace(regex, '<mark class="bg-yellow-300">$1</mark>'); // ใช้ <mark> เพื่อไฮไลท์
+};
+
+const closeSearchModal = () => {
+  isSearchModalOpen.value = false; // ปิด modal
+};
+const fuse = new Fuse(materials.value, fuseOptions);
+fuse.setCollection(materials.value); // ตั้งค่า index ใหม่เมื่อ materials เปลี่ยน
+
+const searchedMaterials = computed(() => {
+  if (!searchQuery.value.trim()) {
+    return []; // คืนค่า array ว่างหาก searchQuery เป็นช่องว่าง
+  }
+
+  const fuse = new Fuse(materials.value, fuseOptions); // สร้างอินสแตนซ์ Fuse
+  const results = fuse.search(searchQuery.value.trim()); // ค้นหา
+
+  return results.map((result) => result.item); // ดึงเฉพาะรายการที่ตรง
+});
+
+const handleSearch = () => {
+  if (!searchQuery.value.trim()) {
+    // ถ้า searchQuery ว่างหรือเป็นช่องว่างเปล่า แสดงแจ้งเตือน
+    toast.info("กรุณากรอกคำค้นหาก่อน", {
+      position: "top-center",
+      autoClose: 3000,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+    });
+    return;
+  }
+  isSearchModalOpen.value = true; // เปิด Modal ถ้ามีค่าการค้นหา
+};
+// คำนวณจำนวนหน้าทั้งหมด
+const totalPageCount = computed(() =>
+  Math.ceil(filteredMaterials.value.length / itemsPerPage)
+);
+
+// คำนวณรายการในหน้าปัจจุบัน
+const paginatedMaterials = computed(() => {
+  const startIndex = (currentPage.value - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  return filteredMaterials.value.slice(startIndex, endIndex);
+});
+
+const visiblePages = computed(() => {
+  const maxVisiblePages = 6; // จำนวนหน้าที่แสดงพร้อมกัน
+  const totalPages = totalPageCount.value;
+
+  // หาค่าหน้าต้นและท้ายในช่วงที่แสดง
+  let startPage = Math.max(1, currentPage.value - Math.floor(maxVisiblePages / 2));
+  let endPage = startPage + maxVisiblePages - 1;
+
+  // ตรวจสอบว่าหากเกินจำนวนหน้าทั้งหมด
+  if (endPage > totalPages) {
+    endPage = totalPages;
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+
+  // สร้าง Array ของเลขหน้า
+  return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+});
 
 // ฟังก์ชันเปิดโมดอลแสดงรูปภาพ
 const openImageModal = (imageUrl) => {
@@ -117,23 +198,6 @@ const filteredMaterials = computed(() => {
           .map((c) => c.trim().toLowerCase())
           .includes(cat.trim().toLowerCase())
       );
-    });
-  }
-
-  // กรองตามคำค้นหาหลายคำที่พิมพ์ (ค้นหาจากชื่อวัสดุและหมวดหมู่)
-  if (searchQuery.value) {
-    const searchTerms = searchQuery.value.toLowerCase().split(" ");
-    filtered = filtered.filter((material) => {
-      const materialCategories = Array.isArray(material.category)
-        ? material.category
-        : material.category?.split(",") || [];
-      return searchTerms.every((term) => {
-        return (
-          material.name?.toLowerCase().includes(term) ||
-          materialCategories.some((cat) => cat.toLowerCase().includes(term)) ||
-          material.partnumber?.toLowerCase().includes(term)
-        );
-      });
     });
   }
 
@@ -259,17 +323,15 @@ onMounted(async () => {
 
   <userLayouts>
     <!-- ช่องค้นหา -->
-    <div class="flex justify-center items-center mb-6">
-      <div
-        class="flex items-center w-full w-full bg-white border border-gray-300 rounded-full shadow-lg"
-      >
+    <div class="search-bar-container">
+      <div class="search-bar">
         <!-- ไอคอนค้นหา -->
-        <span class="p-3 text-gray-400">
+        <span class="search-icon">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="currentColor"
-            class="size-6"
+            class="search-icon-svg"
           >
             <path d="M8.25 10.875a2.625 2.625 0 1 1 5.25 0 2.625 2.625 0 0 1-5.25 0Z" />
             <path
@@ -283,14 +345,110 @@ onMounted(async () => {
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="ค้นหา"
-          class="flex-1 p-3 text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:outline-none rounded-r-full"
+          placeholder="ค้นหา..."
+          class="search-input"
+          @keydown.enter="handleSearch"
         />
+        <!-- ปุ่มเปิด Modal -->
+        <button @click="handleSearch" class="search-button">ค้นหา</button>
+      </div>
+    </div>
+    <!-- Modal แสดงผลการค้นหา -->
+    <div
+      v-if="isSearchModalOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4"
+      @click.self="closeSearchModal"
+    >
+      <!-- ปุ่มปิด Modal -->
+      <button
+        class="absolute top-4 right-4 bg-red-500 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:scale-110"
+        @click="closeSearchModal"
+      >
+        ✕
+      </button>
+      <div
+        class="relative bg-white w-full max-w-5xl max-h-[90vh] rounded-lg shadow-2xl overflow-y-auto"
+      >
+        <!-- ตารางข้อมูล -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+          <div class="p-4">
+            <h2 class="text-2xl font-bold mb-4 text-center text-blue-600">
+              ผลลัพธ์การค้นหา
+            </h2>
+            <!-- ช่องพิมพ์ค้นหาภายใน Modal -->
+            <div class="flex justify-center items-center mb-4">
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="พิมพ์เพื่อค้นหา..."
+                class="w-full max-w-lg border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <!-- จำนวนรายการที่พบ -->
+            <div class="text-gray-600 text-center mb-4">
+              พบ {{ searchedMaterials.length }} รายการที่ตรงกับการค้นหา
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+              <div class="overflow-y-auto">
+                <div class="table-container max-h-96">
+                  <table class="table w-full border-collapse border border-gray-300">
+                    <thead>
+                      <tr class="bg-orange-400 text-black">
+                        <th class="p-3 border border-gray-300">ลำดับ</th>
+                        <th class="p-3 border border-gray-300">รูปภาพ</th>
+                        <th class="p-3 border border-gray-300">รายการ</th>
+                        <th class="p-3 border border-gray-300">PART NUMBER</th>
+                        <th class="p-3 border border-gray-300">คงเหลือ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(item, index) in searchedMaterials"
+                        :key="item.id"
+                        class="hover:bg-blue-50"
+                      >
+                        <th data-label="ลำดับ">
+                          {{ index + 1 }}
+                        </th>
+                        <td data-label="รูปภาพ">
+                          <img
+                            v-if="item.imageUrl"
+                            :src="item.imageUrl"
+                            alt="Material Image"
+                            class="h-16 w-16 object-cover rounded-md mx-auto cursor-pointer"
+                            @click="openImageModal(item.imageUrl)"
+                          />
+                          <span v-else class="text-gray-500">ไม่มีรูปภาพ</span>
+                        </td>
+                        <td data-label="รายการ">
+                          <span v-html="highlightSearch(item.name)"></span>
+                        </td>
+                        <td data-label="PART NUMBER">
+                          <span v-html="highlightSearch(item.partnumber)"></span>
+                        </td>
+
+                        <td data-label="คงเหลือ">
+                          {{ item.totalAmount }}
+                        </td>
+                      </tr>
+                      <tr v-if="!searchedMaterials.length">
+                        <td colspan="10" class="no-data-message">
+                          ไม่พบข้อมูลที่ตรงกับคำค้นหา
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Materials Table -->
-    <div class="bg-white p-6 rounded-lg shadow-lg">
+    <div class="bg-white p-6 rounded-lg shadow-lg mt-2">
       <!-- หมวดหมู่แบบ Checkbox พร้อมเปิด-ปิด -->
       <div class="relative mb-6" ref="categoryDropdownRef">
         <button
@@ -346,21 +504,23 @@ onMounted(async () => {
             <div class="overflow-x-auto">
               <table class="table">
                 <thead>
-                  <tr class="bg-gradient-to-r from-blue-500 to-blue-700 text-white">
-                    <th class="min-w-[50px]">ลำดับ</th>
-                    <th class="min-w-[100px]">รูปภาพ</th>
-                    <th class="min-w-[150px]">รายการ</th>
-                    <th class="min-w-[150px]">PART NUMBER</th>
-                    <th class="min-w-[150px]">คงเหลือ</th>
+                  <tr class="bg-gradient-to-r from-orange-400 to-orange-600 text-white">
+                    <th class="w-[50px] text-center">ลำดับ</th>
+                    <th class="w-[100px] text-center">รูปภาพ</th>
+                    <th class="w-[200px] text-center">รายการ</th>
+                    <th class="w-[150px] text-center">PART NUMBER</th>
+                    <th class="w-[100px] text-center">คงเหลือ</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr
-                    v-for="(material, index) in filteredMaterials"
+                    v-for="(material, index) in paginatedMaterials"
                     :key="material.id"
                     class="hover:bg-gray-100 transition-colors"
                   >
-                    <td data-label="ลำดับ">{{ index + 1 }}</td>
+                    <td data-label="ลำดับ">
+                      {{ index + 1 + (currentPage - 1) * itemsPerPage }}
+                    </td>
                     <td data-label="รูปภาพ">
                       <img
                         v-if="material.imageUrl"
@@ -376,7 +536,7 @@ onMounted(async () => {
                     <td data-label="คงเหลือ">{{ material.totalAmount }}</td>
                   </tr>
                   <!-- แสดงข้อความเมื่อไม่พบข้อมูล -->
-                  <tr v-if="filteredMaterials.length === 0">
+                  <tr v-if="paginatedMaterials.length === 0">
                     <td colspan="5" class="text-center text-gray-500">
                       ❌ ไม่พบข้อมูลที่ตรงกับคำค้นหา
                     </td>
@@ -386,6 +546,66 @@ onMounted(async () => {
             </div>
           </div>
         </div>
+      </div>
+      <!-- Pagination -->
+      <div
+        class="pagination-container flex justify-center items-center mt-6 space-x-3 bg-gray-100 p-4 rounded-lg shadow-lg border border-gray-300"
+      >
+        <!-- ปุ่มไปหน้าแรก -->
+        <button
+          class="pagination-button-first-last text-blue-500 border-blue-500"
+          :disabled="currentPage === 1"
+          @click="currentPage = 1"
+          v-if="currentPage > 4"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5"
+            />
+          </svg>
+        </button>
+
+        <!-- ปุ่มเลือกหน้า -->
+        <button
+          v-for="page in visiblePages"
+          :key="page"
+          class="pagination-button"
+          :class="{ 'pagination-active': currentPage === page }"
+          @click="currentPage = page"
+        >
+          {{ page }}
+        </button>
+
+        <!-- ปุ่มไปหน้าสุดท้าย -->
+        <button
+          v-if="currentPage < totalPageCount"
+          class="pagination-button-first-last text-blue-500 border-blue-500"
+          @click="currentPage = totalPageCount"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5"
+            />
+          </svg>
+        </button>
       </div>
     </div>
     <!-- Image Modal -->
@@ -443,7 +663,7 @@ onMounted(async () => {
   vertical-align: middle; /* จัดให้อยู่กึ่งกลางในแนวตั้ง */
   padding: 12px; /* เพิ่ม Padding */
   font-weight: bold; /* ตัวหนา */
-  color: #ffffff; /* สีข้อความ */
+  color: #000000; /* สีข้อความ */
   text-transform: uppercase; /* เปลี่ยนข้อความให้เป็นตัวพิมพ์ใหญ่ */
   letter-spacing: 1px; /* ระยะห่างระหว่างตัวอักษร */
   transition: background-color 0.3s ease; /* เพิ่มเอฟเฟกต์เวลาโฟกัส */
@@ -725,6 +945,243 @@ img[src]:not([alt]) {
     max-height: calc(100vh - 100px); /* ลดขนาดลงอีกสำหรับมือถือ */
   }
 }
+/* สไตล์ของคอนเทนเนอร์ Pagination */
+.pagination-container {
+  background-color: #e6f0ff; /* สีพื้นหลังคอนเทนเนอร์ (น้ำเงินอ่อน) */
+  font-family: "Prompt", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #99c2ff; /* สีขอบ (น้ำเงิน) */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ปุ่ม Pagination */
+.pagination-button,
+.pagination-button-first-last {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 1px solid #0047ba; /* สีขอบปุ่ม */
+  background-color: #ffffff; /* สีพื้นหลังปุ่ม */
+  color: #0047ba; /* สีข้อความ (น้ำเงินเข้ม) */
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-align: center;
+}
+
+/* เอฟเฟกต์ Hover */
+.pagination-button:hover,
+.pagination-button-first-last:hover {
+  background-color: #e0f0ff; /* สีพื้นหลังเมื่อ Hover */
+  color: #002f73; /* สีข้อความเมื่อ Hover (น้ำเงินเข้มขึ้น) */
+}
+
+/* ปุ่ม First/Last */
+.pagination-button-first-last {
+  border: 1px solid #ffc107; /* สีขอบปุ่ม First/Last (เหลือง) */
+  color: #ffc107; /* สีข้อความ (เหลือง) */
+}
+
+.pagination-button-first-last:hover {
+  background-color: #fff4cc; /* สีพื้นหลังเมื่อ Hover (เหลืองอ่อน) */
+  border-color: #ff9900; /* สีขอบเมื่อ Hover (เหลืองเข้ม) */
+  color: #ff9900; /* สีข้อความเมื่อ Hover (เหลืองเข้ม) */
+}
+
+/* ปุ่ม Active */
+.pagination-active {
+  background-color: #0047ba; /* สีพื้นหลังปุ่มที่ Active (น้ำเงินเข้ม) */
+  color: white; /* สีข้อความ */
+  font-weight: 700;
+  border: 1px solid #0047ba;
+}
+
+/* ปุ่ม Disabled */
+.pagination-button:disabled,
+.pagination-button-first-last:disabled {
+  background-color: #dce6f7; /* สีพื้นหลังปุ่มที่ Disabled (น้ำเงินอ่อน) */
+  color: #a0aec0; /* สีข้อความ */
+  cursor: not-allowed;
+  border-color: #99c2ff; /* สีขอบ */
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  /* แท็บเล็ต */
+  .pagination-container {
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .pagination-button,
+  .pagination-button-first-last {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+
+  .pagination-active {
+    font-size: 14px;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* โทรศัพท์มือถือ */
+  .pagination-container {
+    gap: 4px;
+    padding: 8px;
+  }
+
+  .pagination-button,
+  .pagination-button-first-last {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  .pagination-active {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* หน้าจอขนาดเล็กมาก */
+  .pagination-container {
+    flex-wrap: wrap; /* ให้ปุ่มขึ้นบรรทัดใหม่ */
+    gap: 4px;
+    padding: 6px;
+  }
+
+  .pagination-button,
+  .pagination-button-first-last {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  .pagination-active {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+}
+/* Search Bar Container */
+.search-bar-container {
+  width: 100%; /* ใช้ความกว้างเต็มพื้นที่ */
+  max-width: auto; /* กำหนดความกว้างสูงสุด */
+}
+
+/* Search Bar */
+.search-bar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background-color: #ffffff; /* สีพื้นหลัง */
+  border: 2px solid #ffc107; /* สีเหลือง EGAT */
+  border-radius: 9999px; /* มุมโค้งกลม */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
+  padding: 0.5rem 1rem; /* ระยะห่างด้านใน */
+  transition: all 0.3s ease; /* เพิ่มเอฟเฟกต์ */
+}
+
+/* Search Icon */
+.search-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 0.5rem;
+}
+
+.search-icon-svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: #ffc107; /* สีเหลือง EGAT */
+}
+
+/* Search Input */
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  color: #374151; /* สีข้อความ */
+  padding: 0.5rem 1rem; /* ระยะห่างภายใน */
+  background-color: transparent; /* โปร่งใส */
+}
+
+.search-input::placeholder {
+  color: #9ca3af; /* สีข้อความ Placeholder */
+  font-style: italic; /* ตัวเอียง */
+}
+
+/* Search Button */
+.search-button {
+  background-color: #ffc107; /* สีเหลือง EGAT */
+  color: #374151; /* สีเทาเข้ม */
+  font-weight: 600; /* ตัวหนา */
+  border: none;
+  border-radius: 9999px; /* มุมโค้ง */
+  padding: 0.5rem 1rem; /* ระยะห่างภายใน */
+  transition: all 0.3s ease; /* เพิ่มเอฟเฟกต์ */
+  cursor: pointer;
+}
+
+.search-button:hover {
+  background-color: #f9a825; /* สีเหลืองเข้ม */
+  color: #ffffff; /* สีตัวอักษร */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* เพิ่มเงา */
+}
+
+/* Hover Effect */
+.search-bar:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* เพิ่มเงาเมื่อ Hover */
+}
+
+.search-input:focus {
+  box-shadow: 0 0 6px rgba(255, 193, 7, 0.5); /* เงาสีเหลือง */
+}
+/* Scrollbar Styling สำหรับตาราง */
+.table-container {
+  width: 100%;
+  max-height: calc(65vh - 100px); /* ลดขนาดลงจากความสูงหน้าจอ */
+  min-height: 150px; /* กำหนดความสูงขั้นต่ำ */
+  height: auto; /* ปรับความสูงอัตโนมัติตามเนื้อหา */
+  overflow-y: auto; /* เพิ่ม scroll หากเนื้อหายาวเกิน */
+  border: 1px solid #ddd;
+  scrollbar-width: thin; /* สำหรับ Firefox */
+  scrollbar-color: #007bff #f1f1f1; /* สี Thumb และ Track */
+}
+
+.table-container::-webkit-scrollbar {
+  width: 10px; /* ความกว้าง scrollbar */
+  height: 10px; /* ความสูง scrollbar แนวนอน */
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #4a90e2, #007bff); /* สีไล่ระดับของ Thumb */
+  border-radius: 8px; /* มุม Thumb โค้งมน */
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #007bff, #0056b3); /* สีเมื่อ Hover */
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: #f1f1f1; /* สีพื้นหลังของ Track */
+  border-radius: 8px; /* มุม Track โค้งมน */
+}
+
+.table-container::-webkit-scrollbar-track:hover {
+  background: #e6e6e6; /* สี Track เมื่อ Hover */
+}
+.close-btn:hover {
+  background-color: #e63946;
+  transform: scale(1.1);
+}
 </style>
 
-//sparepartslist//user//V3
+//sparepartslist//user//V3//13:25

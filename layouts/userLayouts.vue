@@ -223,14 +223,12 @@
       </aside>
 
       <!-- Main Content -->
-      <div
-        class="flex-1 mx-auto w-full sm:ml-60 overflow-x-auto overflow-y-hidden select-none"
-      >
+      <div class="flex-1 mx-auto w-full sm:ml-60 overflow-x-auto select-none">
         <div
           class="bg-gradient-to-r from-blue-400 via-blue-300 to-blue-500 w-full h-[96px] p-5 shadow-lg flex items-center justify-center"
         >
           <p class="text-5xl font-extrabold text-gray-800 tracking-wider">
-            แผนก <span class="text-orange-600">หบย-ช</span>
+            แผนก <span class="text-orange-600">หบย</span>
           </p>
         </div>
         <!-- title bar -->
@@ -273,7 +271,7 @@
           </div>
         </div>
         <!-- ตาราง-->
-        <div class="p-4 overflow-x-auto overflow-y-hidden h-[calc(100vh-160px)]">
+        <div class="p-4 overflow-x-auto h-[calc(100vh-160px)]">
           <slot />
         </div>
       </div>
@@ -615,27 +613,6 @@ li:hover {
 .slide-fade-left-leave-to {
   opacity: 0;
   transform: translateX(-100%);
-}
-
-/* Smooth Transition for Menu Items */
-.hamburger-submenu li {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-.hamburger-submenu li:hover {
-  transform: translateY(0);
-  opacity: 1;
-  background-color: #e0f2fe; /* เปลี่ยนสีพื้นหลัง */
-}
-.hamburger-submenu li:nth-child(1) {
-  transition-delay: 0.1s;
-}
-.hamburger-submenu li:nth-child(2) {
-  transition-delay: 0.2s;
-}
-.hamburger-submenu li:nth-child(3) {
-  transition-delay: 0.3s;
 }
 </style>
 //userlayout//v1

@@ -233,7 +233,7 @@
           class="bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 w-full h-[96px] p-5 shadow-lg flex items-center justify-center"
         >
           <p class="text-5xl font-extrabold text-gray-800 tracking-wider">
-            แผนก <span class="text-orange-600">หบย-ช</span>
+            แผนก <span class="text-orange-600">หบย</span>
           </p>
         </div>
 
@@ -301,7 +301,7 @@ const hamburgerMenuRef = ref(null); // สำหรับ Hamburger Menu
 const desktopMenuRef = ref(null); // สำหรับเมนูย่อยหน้าจอปกติ
 
 // ตัวแปรจัดการชื่อเมนูที่กด
-const selectedMenu = ref("รายการอะไหล่");
+const selectedMenu = ref("📊 ภาพรวมระบบ");
 
 const toggleMobileNav = () => {
   mobileNavOpen.value = !mobileNavOpen.value;
@@ -699,27 +699,6 @@ li:hover {
 .slide-fade-left-leave-to {
   opacity: 0;
   transform: translateX(-100%);
-}
-
-/* Smooth Transition for Menu Items */
-.hamburger-submenu li {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-.hamburger-submenu li:hover {
-  transform: translateY(0);
-  opacity: 1;
-  background-color: #e0f2fe; /* เปลี่ยนสีพื้นหลัง */
-}
-.hamburger-submenu li:nth-child(1) {
-  transition-delay: 0.1s;
-}
-.hamburger-submenu li:nth-child(2) {
-  transition-delay: 0.2s;
-}
-.hamburger-submenu li:nth-child(3) {
-  transition-delay: 0.3s;
 }
 </style>
 //adminLayout//VV//13:22//

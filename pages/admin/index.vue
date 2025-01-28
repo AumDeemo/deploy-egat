@@ -52,7 +52,8 @@ const fetchSummaryData = async () => {
     // สร้างรายการอัปเดตใหม่
     const newUpdates = materials
       .map((item) => ({
-        message: `รายการ '${item.name}' ถูกอัปเดต`,
+        message: `รายการ '${item.name}'`,
+        totalAmount: item.totalAmount,
         timestamp: new Date(item.updatedAt).toLocaleString(),
         updatedAt: item.updatedAt, // ใช้สำหรับจัดเรียง
       }))
@@ -66,8 +67,6 @@ const fetchSummaryData = async () => {
     isLoading.value = false; // สิ้นสุดการโหลด
   }
 };
-
-
 
 // อัปเดตข้อมูลแบบอัตโนมัติ
 const startAutoUpdate = () => {
@@ -94,26 +93,22 @@ onUnmounted(() => {
     >
       <!-- Header -->
       <div
-        class="text-center mb-5 bg-gradient-to-r from-cyan-400 to-cyan-600 text-white py-6 rounded-lg shadow-lg flex items-center justify-center gap-3"
+        class="text-center mb-8 bg-gradient-to-r from-blue-900 to-blue-600 text-white py-10 rounded-xl shadow-lg"
       >
-        <!-- Icon -->
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          class="w-10 h-10"
-        >
-          <path
-            d="M18.375 2.25c-1.035 0-1.875.84-1.875 1.875v15.75c0 1.035.84 1.875 1.875 1.875h.75c1.035 0 1.875-.84 1.875-1.875V4.125c0-1.036-.84-1.875-1.875-1.875h-.75ZM9.75 8.625c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v11.25c0 1.035-.84 1.875-1.875 1.875h-.75a1.875 1.875 0 0 1-1.875-1.875V8.625ZM3 13.125c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v6.75c0 1.035-.84 1.875-1.875 1.875h-.75A1.875 1.875 0 0 1 3 19.875v-6.75Z"
-          />
-        </svg>
-        <!-- Text -->
-        <div>
-          <h1 class="text-3xl md:text-4xl font-extrabold tracking-wide">Dashboard</h1>
-          <p class="text-base md:text-lg mt-1 tracking-wide">
-            ภาพรวมสถานะระบบจัดการอะไหล่
-          </p>
+        <div class="flex items-center justify-center gap-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            class="w-12 h-12"
+          >
+            <path
+              d="M18.375 2.25c-1.035 0-1.875.84-1.875 1.875v15.75c0 1.035.84 1.875 1.875 1.875h.75c1.035 0 1.875-.84 1.875-1.875V4.125c0-1.036-.84-1.875-1.875-1.875h-.75ZM9.75 8.625c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v11.25c0 1.035-.84 1.875-1.875 1.875h-.75a1.875 1.875 0 0 1-1.875-1.875V8.625ZM3 13.125c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v6.75c0 1.035-.84 1.875-1.875 1.875h-.75A1.875 1.875 0 0 1 3 19.875v-6.75Z"
+            />
+          </svg>
+          <h1 class="text-4xl md:text-5xl font-extrabold tracking-wider">Dashboard</h1>
         </div>
+        <p class="text-lg mt-2">ภาพรวมระบบ</p>
       </div>
 
       <!-- Summary Section -->
@@ -236,42 +231,67 @@ onUnmounted(() => {
       </div>
 
       <!-- Latest Updates -->
-      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+      <div
+        class="bg-gradient-to-r from-gray-50 to-gray-100 p-8 rounded-lg shadow-lg border border-gray-300"
+      >
         <h2
-          class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 justify-center"
+          class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center gap-3 justify-center"
         >
           <span>🕒 อัปเดตล่าสุด</span>
-          <span class="bg-blue-500 text-white px-2 py-1 text-xs rounded-full">NEW</span>
+          <span class="bg-blue-600 text-white px-3 py-1 text-sm rounded-full shadow"
+            >NEW</span
+          >
         </h2>
-        <ul class="divide-y divide-gray-200">
+        <ul class="divide-y divide-gray-300">
           <li
             v-for="(update, index) in latestUpdates"
             :key="index"
-            class="py-4 flex items-start gap-4"
+            class="py-6 flex items-start gap-6 transition-transform transform hover:scale-105 hover:shadow-md"
           >
-            <div class="flex-shrink-0">
+            <div class="flex-shrink-0 mt-4">
               <div
-                class="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center"
+                class="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center shadow-lg relative group"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
                   viewBox="0 0 24 24"
-                  fill="currentColor"
-                  class="w-6 h-6 text-blue-500"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="size-6"
                 >
                   <path
-                    d="M12 1.25a9.75 9.75 0 100 19.5 9.75 9.75 0 000-19.5zm.75 14.5a.75.75 0 01-1.5 0V9.25a.75.75 0 011.5 0v6.5zm-1.125-9.75a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
                   />
                 </svg>
+
+                <div
+                  class="absolute top-0 right-0 h-3 w-3 bg-green-500 rounded-full border-2 border-white animate-ping"
+                ></div>
               </div>
             </div>
             <div>
-              <p class="text-gray-800 font-semibold">{{ update.message }}</p>
-              <p class="text-gray-500 text-sm">{{ update.timestamp }}</p>
+              <p class="text-lg font-bold text-gray-700">{{ update.message }}</p>
+              <p class="text-gray-500 text-base mt-1">
+                คงเหลือ:
+                <span
+                  :class="{
+                    'text-red-600 font-bold': update.totalAmount <= 5,
+                    'text-yellow-600 font-medium':
+                      update.totalAmount > 5 && update.totalAmount <= 10,
+                    'text-green-600 font-semibold': update.totalAmount > 10,
+                  }"
+                >
+                  {{ update.totalAmount }}
+                </span>
+              </p>
+              <p class="text-gray-500 text-sm mt-1">{{ update.timestamp }}</p>
             </div>
           </li>
         </ul>
-        <p v-if="latestUpdates.length === 0" class="text-center text-gray-500 mt-4">
+        <p v-if="latestUpdates.length === 0" class="text-center text-gray-500 mt-6">
           ไม่มีข้อมูลอัปเดตล่าสุด
         </p>
       </div>

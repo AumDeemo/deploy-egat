@@ -2,17 +2,11 @@
 import userLayouts from "~/layouts/userLayouts.vue";
 import { ref, onMounted, computed } from "vue";
 
-const materials = ref([]);
-const lowStockMaterials = ref([]); // รายการอะไหล่ที่ต้องแจ้งเตือน
 const isNotificationOpen = ref(false); // สถานะเปิด/ปิดการแจ้งเตือน
 const notificationDropdownRef = ref(null); // อ้างอิง dropdown แจ้งเตือน
 const latestUpdates = ref([]); // รายการอัปเดตล่าสุด
 const totalMaterials = ref(0); // จำนวนอะไหล่ทั้งหมด
 const lowStockCount = ref(0); // จำนวนอะไหล่ที่มีสต็อกต่ำ
-const popularCategories = ref([]); // หมวดหมู่ยอดนิยม
-const totalCURU = ref(0); // จำนวนคุรุภัณฑ์ทั้งหมด
-const totalUsing = ref(0); // จำนวนเครื่องมือเครื่องใช้ทั้งหมด
-const totalUsingBelow10000 = ref(0); // จำนวนเครื่องมือเครื่องใช้ราคาต่ำกว่า 10000
 const intervalId = ref(null);
 const isLoading = ref(true); // สถานะการโหลดข้อมูล
 
