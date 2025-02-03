@@ -448,10 +448,9 @@ const closeModal = () => {
   isModalOpen.value = false;
 };
 
-const logoutAndRedirect = async () => {
+const logoutAndRedirect =  () => {
   try {
-    await authStore.logout(); // ล็อกเอาต์
-    router.push("/login"); // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
+    authStore.logout(); // ล็อกเอาต์
   } catch (error) {
     console.error("Error logging out:", error);
   }

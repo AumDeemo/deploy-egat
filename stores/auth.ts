@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import Swal from 'sweetalert2';
 
 export const useAuthStore = defineStore('auth', () => {
     const isAuthenticated = ref(false);
@@ -51,23 +52,43 @@ export const useAuthStore = defineStore('auth', () => {
         }
     };
 
-    const logout = () => {
-        isAuthenticated.value = false;
-        user.value = {
-            id: null,
-            email: '',
-            fullname: '',
-            phoneNumber: '',
-            role: '',
-        };
-
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem('user');
-            localStorage.removeItem('token');
-            localStorage.removeItem('restaurantId');
+    const logout = async () => {
+        const result = await Swal.fire({
+            title: 'คุณแน่ใจหรือไม่?',
+            text: 'คุณต้องการออกจากระบบหรือไม่?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'ใช่, ออกจากระบบ!',
+            cancelButtonText: 'ยกเลิก'
+        });
+    
+        if (result.isConfirmed) {
+            isAuthenticated.value = false;
+            user.value = {
+                id: null,
+                email: '',
+                fullname: '',
+                phoneNumber: '',
+                role: '',
+            };
+    
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('user');
+                localStorage.removeItem('token');
+                localStorage.removeItem('role');
+            }
+    
+            await Swal.fire({
+                title: 'ออกจากระบบสำเร็จ!',
+                text: 'คุณได้ออกจากระบบเรียบร้อยแล้ว',
+                icon: 'success',
+                confirmButtonText: 'ตกลง'
+            });
+    
+            router.push('/login');
         }
-
-        router.push('/login');
     };
 
     const isAdmin = computed(() => user.value?.role === 'admin');
