@@ -1,0 +1,8 @@
+{
+    "version": 2,
+    "public": "./.output/public",
+    "builds": [
+      { "src": "nuxt.config.ts", "use": "@vercel/nuxt" }
+    ]
+  }
+  
