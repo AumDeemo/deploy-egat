@@ -42,6 +42,8 @@ export const useAuthStore = defineStore('auth', () => {
             localStorage.setItem('token', userData.token);
         }
 
+        localStorage.setItem('role', 'admin');
+
         if (userData.user.role === 'admin') {
             router.push('/admin');
         } else {

@@ -838,6 +838,10 @@ const closeModal = () => {
 onMounted(async () => {
   await fetchusing();
 });
+
+definePageMeta({
+  middleware: 'check-role'
+})
 </script>
 
 <style scoped>

@@ -380,6 +380,10 @@ const handleDeleteMaterial = async () => {
 onMounted(async () => {
   await Promise.all([fetchCategories(), fetchMaterials()]);
 });
+
+definePageMeta({
+  middleware: 'check-role'
+})
 </script>
 
 <template>

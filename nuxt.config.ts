@@ -28,5 +28,4 @@ export default defineNuxtConfig({
     },
   },
   localtunnel: {},
-   
 });

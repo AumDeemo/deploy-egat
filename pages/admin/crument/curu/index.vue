@@ -851,6 +851,10 @@ onMounted(async () => {
   await fetchCURU();
   console.log("CURU Data:", CURU.value);
 });
+
+definePageMeta({
+  middleware: 'check-role'
+})
 </script>
 
 <style scoped>

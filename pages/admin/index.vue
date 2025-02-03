@@ -84,6 +84,10 @@ onUnmounted(() => {
     clearInterval(intervalId.value);
   }
 });
+
+definePageMeta({
+  middleware: 'check-role'
+})
 </script>
 
 <template>
