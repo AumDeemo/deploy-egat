@@ -6,7 +6,7 @@
         class="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 text-white rounded-lg px-8 py-4 shadow-lg"
       >
         <h1 class="text-4xl font-extrabold text-center tracking-wide">
-          ระบบจัดการข้อมูลคุรุภัณฑ์
+          ระบบจัดการข้อมูลครุภัณฑ์
         </h1>
         <p class="text-center text-sm mt-2 font-light">
           การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย (EGAT)
@@ -79,7 +79,7 @@
 
       <!-- ตาราง -->
       <div class="bg-white p-6 rounded-lg shadow-lg">
-        <h2 class="text-xl font-bold mb-4 text-blue-600 text-center">รายการคุรุภัณฑ์</h2>
+        <h2 class="text-xl font-bold mb-4 text-blue-600 text-center">รายการครุภัณฑ์</h2>
         <div class="overflow-x-auto">
           <!-- เพิ่ม container ที่มี scroll -->
           <div
@@ -341,7 +341,7 @@
           </button>
 
           <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">
-            รายละเอียดคุรุภัณฑ์
+            รายละเอียดครุภัณฑ์
           </h2>
 
           <!-- Table for Details -->
@@ -422,7 +422,7 @@
           class="bg-white p-6 rounded-lg w-full max-w-3xl max-h-[80vh] overflow-auto shadow-xl"
         >
           <h2 class="text-xl font-bold mb-6 text-center text-blue-600">
-            แก้ไขข้อมูลคุรุภัณฑ์
+            แก้ไขข้อมูลครุภัณฑ์
           </h2>
 
           <!-- Edit Form -->
