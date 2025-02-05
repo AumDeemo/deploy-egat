@@ -456,11 +456,11 @@
 
               <!-- Column 2 -->
               <div class="form-control">
-                <label class="font-medium text-gray-700">รหัสครุภัณฑ์</label>
+                <label class="font-medium text-gray-700">รหัสเครื่องมือเครืองใช้</label>
                 <input
                   v-model="selectedusing10000.curunumber"
                   class="input input-bordered focus:ring focus:ring-blue-300"
-                  placeholder="กรอกรหัสครุภัณฑ์"
+                  placeholder="กรอกรหัสเครื่องมือเครืองใช้"
                 />
               </div>
               <div class="form-control">
