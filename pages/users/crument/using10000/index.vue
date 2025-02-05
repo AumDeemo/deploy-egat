@@ -266,7 +266,7 @@
               <thead class="bg-blue-100 text-blue-600 font-semibold">
                 <tr>
                   <th class="py-3 px-4 border-b border-gray-300">ลำดับที่</th>
-                  <th class="py-3 px-4 border-b border-gray-300">รหัสครุภัณฑ์</th>
+                  <th class="py-3 px-4 border-b border-gray-300">รหัสพัสดุ</th>
                   <th class="py-3 px-4 border-b border-gray-300">
                     รหัสเครื่องมือเครื่องใช้
                   </th>
