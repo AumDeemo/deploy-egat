@@ -172,7 +172,7 @@ const fetchMaterials = async () => {
 // ดึงข้อมูลหมวดหมู่
 const fetchCategories = async () => {
   try {
-    const response = await fetch("/api/admin/new/category");
+    const response = await fetch("/api/admin/neww/category");
     const result = await response.json();
     if (result.status === "success") {
       categories.value = result.data;
