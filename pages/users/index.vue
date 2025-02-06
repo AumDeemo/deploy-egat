@@ -1,72 +1,99 @@
 <script setup>
 import userLayouts from "~/layouts/userLayouts.vue";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, onBeforeUnmount, onUnmounted } from "vue";
+import dayjs from "dayjs";
+import "dayjs/locale/th";
 
-const isNotificationOpen = ref(false); // สถานะเปิด/ปิดการแจ้งเตือน
-const notificationDropdownRef = ref(null); // อ้างอิง dropdown แจ้งเตือน
-const latestUpdates = ref([]); // รายการอัปเดตล่าสุด
-const totalMaterials = ref(0); // จำนวนอะไหล่ทั้งหมด
-const lowStockCount = ref(0); // จำนวนอะไหล่ที่มีสต็อกต่ำ
+const isNotificationOpen = ref(false);
+const notificationDropdownRef = ref(null);
+const latestUpdates = ref([]);
+const totalMaterials = ref(0);
+const lowStockCount = ref(0);
 const intervalId = ref(null);
-const isLoading = ref(true); // สถานะการโหลดข้อมูล
+const isLoading = ref(true);
 
-// ฟังก์ชันปิด dropdown เมื่อคลิกนอกพื้นที่
+dayjs.locale("th");
+
 const handleClickOutsideNotification = (event) => {
   if (
-    notificationDropdownRef.value && // ตรวจสอบว่า dropdown ถูก mount แล้ว
-    notificationDropdownRef.value.contains(event.target) // ถ้าคลิกใน dropdown
+    notificationDropdownRef.value &&
+    notificationDropdownRef.value.contains(event.target)
   ) {
-    return; // ไม่ปิดแจ้งเตือน
+    return;
   }
-  isNotificationOpen.value = false; // ปิดแจ้งเตือน
+  isNotificationOpen.value = false;
 };
-// เพิ่ม Event Listener เมื่อคอมโพเนนต์ถูก mounted
+
 onMounted(() => {
   window.addEventListener("click", handleClickOutsideNotification);
 });
 
-// ลบ Event Listener เมื่อคอมโพเนนต์ถูก unmounted
 onBeforeUnmount(() => {
   window.removeEventListener("click", handleClickOutsideNotification);
 });
 
 const fetchSummaryData = async () => {
   try {
-    isLoading.value = true; // เริ่มการโหลด
+    isLoading.value = true;
     const materialsResponse = await fetch("/api/admin/material");
     const materials = await materialsResponse.json();
 
-    // คำนวณจำนวนอะไหล่ทั้งหมด
     totalMaterials.value = materials.length;
-
-    // คำนวณจำนวนอะไหล่ที่คงเหลือน้อยกว่า 10
     lowStockCount.value = materials.filter((item) => item.totalAmount < 10).length;
 
-    // สร้างรายการอัปเดตใหม่
     const newUpdates = materials
-      .map((item) => ({
-        message: `รายการ '${item.name}'`,
-        totalAmount: item.totalAmount,
-        timestamp: new Date(item.updatedAt).toLocaleString(),
-        updatedAt: item.updatedAt, // ใช้สำหรับจัดเรียง
-      }))
-      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)); // เรียงลำดับโดยเวลาล่าสุด
+      .map((item) => {
+        const latestImport =
+          item.importHistory?.length > 0
+            ? item.importHistory.sort((a, b) => new Date(b.date) - new Date(a.date))[0]
+            : null;
+        const latestExport =
+          item.exportHistory?.length > 0
+            ? item.exportHistory.sort((a, b) => new Date(b.date) - new Date(a.date))[0]
+            : null;
 
-    // จำกัดรายการอัปเดตล่าสุดให้เหลือเพียง 5 รายการ
+        let action = "";
+        let timestamp = item.updatedAt;
+        let actionType = "";
+
+        if (
+          latestImport &&
+          (!latestExport || new Date(latestImport.date) > new Date(latestExport.date))
+        ) {
+          action = `นำเข้า ${latestImport.quantity}`;
+          timestamp = latestImport.date;
+          actionType = "import";
+        } else if (latestExport) {
+          action = `นำออก ${latestExport.quantity}`;
+          timestamp = latestExport.date;
+          actionType = "export";
+        } else {
+          return null; // ถ้าไม่มีข้อมูลนำเข้าและนำออก ไม่ต้องแสดงรายการนี้
+        }
+
+        return {
+          message: `รายการ '${item.name}' ${action}`,
+          totalAmount: item.totalAmount,
+          timestamp: dayjs(timestamp).format("DD MMMM YYYY HH:mm น."),
+          updatedAt: timestamp,
+          actionType: actionType,
+        };
+      })
+      .filter((update) => update !== null) // กรองค่าที่เป็น null ออก
+      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
     latestUpdates.value = newUpdates.slice(0, 5);
   } catch (err) {
     console.error("Error fetching summary data:", err);
   } finally {
-    isLoading.value = false; // สิ้นสุดการโหลด
+    isLoading.value = false;
   }
 };
 
-// อัปเดตข้อมูลแบบอัตโนมัติ
 const startAutoUpdate = () => {
-  intervalId.value = setInterval(fetchSummaryData, 10000); // อัปเดตทุก 10 วินาที
+  intervalId.value = setInterval(fetchSummaryData, 10000);
 };
 
-// หยุดการอัปเดตอัตโนมัติเมื่อออกจากคอมโพเนนต์
 onMounted(() => {
   fetchSummaryData();
   startAutoUpdate();
@@ -78,26 +105,23 @@ onUnmounted(() => {
   }
 });
 </script>
-
 <template>
   <userLayouts>
-    <!-- Welcome Banner -->
     <div
-      class="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white py-8 md:py-10 text-center rounded-lg shadow-lg mb-10"
+      class="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-700 text-white py-10 md:py-12 text-center rounded-lg shadow-xl mb-10 border-2 border-yellow-400"
     >
-      <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
-        ยินดีต้อนรับ
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-wide uppercase">
+        ระบบบริหารจัดการวัสดุ
       </h1>
     </div>
-    <!-- Latest Updates -->
-    <div class="bg-white p-6 rounded-lg shadow-lg border border-gray-300">
+    <div class="bg-white p-8 rounded-lg shadow-lg border border-gray-300">
       <h2
-        class="text-2xl font-extrabold text-gray-700 mb-6 flex items-center gap-3 justify-center"
+        class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center gap-3 justify-center"
       >
-        <span class="text-blue-600">🕒</span>
+        ⚙️
         <span>อัปเดตล่าสุด</span>
         <span
-          class="bg-yellow-400 text-gray-800 px-3 py-1 text-xs font-bold rounded-full"
+          class="bg-yellow-400 text-gray-800 px-4 py-1 text-sm font-bold rounded-full"
         >
           NEW
         </span>
@@ -106,55 +130,81 @@ onUnmounted(() => {
         <li
           v-for="(update, index) in latestUpdates"
           :key="index"
-          class="py-5 px-4 flex items-start gap-5 bg-gradient-to-r from-blue-50 via-white to-gray-50 shadow-sm rounded-lg hover:shadow-md transition duration-300"
+          class="py-6 px-5 flex items-start gap-6 bg-gradient-to-r from-yellow-50 via-white to-gray-50 shadow-md rounded-lg hover:shadow-xl transition duration-300 border border-yellow-300"
         >
           <div class="flex-shrink-0">
             <div
-              class="h-12 w-12 bg-yellow-100 rounded-full flex items-center justify-center shadow-lg icon-effect mt-5"
+              :class="{
+                'h-14 w-14 bg-green-100 rounded-full flex items-center justify-center shadow-lg icon-effect mt-4':
+                  update.actionType === 'import',
+                'h-14 w-14 bg-red-100 rounded-full flex items-center justify-center shadow-lg icon-effect mt-4':
+                  update.actionType === 'export',
+              }"
             >
               <svg
+                v-if="update.actionType === 'import'"
+                class="w-6 h-6 text-green-600"
                 xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="orange"
-                class="w-8 h-8 transform"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
               >
                 <path
-                  fill-rule="evenodd"
-                  d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
-                  clip-rule="evenodd"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m15 11.25-3-3m0 0-3 3m3-3v7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
+              </svg>
+              <svg
+                v-else-if="update.actionType === 'export'"
+                class="w-6 h-6 text-red-600"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                 />
               </svg>
             </div>
           </div>
+          <!-- ข้อมูลอัปเดต -->
           <div>
-            <p class="text-gray-800 font-semibold text-lg">{{ update.message }}</p>
-            <p class="text-gray-500 text-base mt-1">
+            <p class="font-semibold text-lg text-gray-800">
+              {{ update.message.split(" ")[0] }}'
+              <span
+                :class="{
+                  'text-green-700 font-bold': update.actionType === 'import',
+                  'text-red-700 font-bold': update.actionType === 'export',
+                }"
+              >
+                {{ update.message.split(" ").slice(1).join(" ") }}
+              </span>
+            </p>
+            <p class="text-gray-700 text-base mt-1">
               คงเหลือ:
               <span
                 :class="{
-                  'text-red-600 font-bold': update.totalAmount <= 5,
-                  'text-yellow-600 font-medium':
+                  'text-red-700 font-bold': update.totalAmount <= 5,
+                  'text-yellow-700 font-medium':
                     update.totalAmount > 5 && update.totalAmount <= 10,
-                  'text-green-600 font-semibold': update.totalAmount > 10,
+                  'text-green-700 font-semibold': update.totalAmount > 10,
                 }"
+                >{{ update.totalAmount }}</span
               >
-                {{ update.totalAmount }}
-              </span>
             </p>
-            <p
-              class="text-base mt-1"
-              :class="{
-                'text-blue-500 font-medium': true /* เพิ่มสีฟ้าและทำให้ตัวอักษรหนากว่า */,
-                'text-opacity-90': true /* เพิ่มความชัด */,
-              }"
-            >
+            <p class="text-sm mt-1 text-blue-800 font-semibold">
               {{ update.timestamp }}
             </p>
           </div>
         </li>
       </ul>
-
-      <p v-if="latestUpdates.length === 0" class="text-center text-gray-500 mt-6">
+      <p v-if="latestUpdates.length === 0" class="text-center text-gray-600 mt-6">
         ไม่มีข้อมูลอัปเดตล่าสุด
       </p>
     </div>
@@ -199,7 +249,7 @@ onUnmounted(() => {
     transform: scale(1); /* ขนาดปกติ */
   }
   50% {
-    transform: scale(1.2); /* ขยาย 20% */
+    transform: scale(1.05); /* ขยาย 20% */
   }
 }
 /* เพิ่มสีและพื้นหลังให้ timestamp */
@@ -212,5 +262,3 @@ onUnmounted(() => {
   display: inline-block; /* ให้ข้อความมีพื้นหลังติดกัน */
 }
 </style>
-
-//users//home//
