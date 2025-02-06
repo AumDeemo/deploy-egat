@@ -208,7 +208,7 @@ const material = async () => {
 
     formData.append("image", imageFile.value);
 
-    const response = await fetch("/api/admin/new/material", {
+    const response = await fetch("/api/admin/neww/material", {
       method: "POST",
       body: formData,
     });

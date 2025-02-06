@@ -141,7 +141,6 @@
 import { ref, onMounted } from "vue";
 import adminLayouts from "~/layouts/adminLayouts.vue";
 
-const isModalOpen = ref(false);
 const isFormOpen = ref(false);
 const machines = ref([]);
 const newMachine = ref({
@@ -164,32 +163,6 @@ const closeForm = () => {
   isFormOpen.value = false;
 };
 
-const openModal = (
-  name,
-  description,
-  brand,
-  model,
-  num,
-  capacity,
-  carry,
-  carnum,
-  image
-) => {
-  modalTitle.value = name;
-  modalDescription.value = description;
-  modalBrand.value = brand;
-  modalModel.value = model;
-  modalNum.value = num;
-  modalCapacity.value = capacity;
-  modalCarry.value = carry;
-  modalCarNum.value = carnum;
-  modalImage.value = image;
-  isModalOpen.value = true;
-};
-
-const closeModal = () => {
-  isModalOpen.value = false;
-};
 
 const fetchMachines = async () => {
   try {

@@ -285,7 +285,6 @@
 </template>
 
 <script setup>
-import { LogoutIcon } from "@vue-hero-icons/outline";
 import { useAuthStore } from "#build/imports";
 import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
@@ -347,18 +346,7 @@ onBeforeUnmount(() => {
   window.removeEventListener("click", handleClickOutsideDesktop);
 });
 
-// ฟังก์ชันเปิด/ปิดเมนูย่อยสำหรับ Hamburger Menu
-const toggleMobileMenu = (menuName) => {
-  openMobileMenu.value = openMobileMenu.value === menuName ? null : menuName;
-};
-
 const authStore = useAuthStore();
-
-const activeSubMenu = ref(null);
-
-const setActiveSubMenu = (menuName) => {
-  activeSubMenu.value = menuName;
-};
 
 // เมนูทั้งหมด
 const menus = ref([
@@ -433,20 +421,6 @@ watch(
   },
   { immediate: true }
 );
-const isModalOpen = ref(false);
-const notifications = ref([
-  { id: 1, message: "New message from admin." },
-  { id: 2, message: "System maintenance scheduled." },
-  { id: 3, message: "New updates available." },
-]);
-
-const openModal = () => {
-  isModalOpen.value = true;
-};
-
-const closeModal = () => {
-  isModalOpen.value = false;
-};
 
 const logoutAndRedirect =  () => {
   try {

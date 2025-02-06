@@ -1,6 +1,6 @@
 <script setup>
 import userLayouts from "~/layouts/userLayouts.vue";
-import { ref, onMounted, computed, onBeforeUnmount, onUnmounted } from "vue";
+import { ref, onMounted, onBeforeUnmount, onUnmounted } from "vue";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 

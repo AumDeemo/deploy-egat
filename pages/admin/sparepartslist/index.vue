@@ -2,7 +2,6 @@
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import Fuse from "fuse.js";
 import adminLayouts from "~/layouts/adminLayouts.vue";
-import { BrowserMultiFormatReader } from "@zxing/library";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 
@@ -24,7 +23,6 @@ const notificationDropdownRef = ref(null); // อ้างอิง dropdown แ
 const isImageModalOpen = ref(false); // สถานะเปิด/ปิดโมดอล
 const modalImageUrl = ref(""); // เก็บ URL ของรูปภาพที่เลือก
 const previewImageUrl = ref(null);
-const isNewNotification = ref(false); // สถานะสำหรับตรวจสอบว่ามีการแจ้งเตือนใหม่หรือไม่
 const isSearchModalOpen = ref(false); // สถานะเปิด/ปิด modal ค้นหา
 
 const fuseOptions = {
