@@ -92,6 +92,9 @@
               </RouterLink>
             </li>
           </ul>
+          <RouterLink to="/users" class="flex justify-center mt-4">
+            <button class="text-red-700 mt-4" @click="toggleMobileNav">ออกจากระบบ</button>
+          </RouterLink>
           <!-- Close Button -->
           <button class="text-gray-700 mt-4" @click="toggleMobileNav">ปิดเมนู</button>
         </div>

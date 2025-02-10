@@ -50,6 +50,9 @@
               </RouterLink>
             </li>
           </ul>
+          <RouterLink to="/login" class="flex justify-center mt-4">
+            <button class="text-green-700 mt-4" @click="toggleMobileNav">ล็อกอินเพื่อจัดการข้อมูล</button>
+          </RouterLink>
           <!-- Close Button -->
           <button class="text-gray-700 mt-4" @click="toggleMobileNav">ปิดเมนู</button>
         </div>
