@@ -14,7 +14,7 @@
       </header>
       <!-- ปุ่มเพิ่มรายการและช่องค้นหา -->
       <div
-        class="bg-white p-6 rounded-lg shadow-lg mb-6 flex items-center justify-between gap-6"
+        class="flex-container bg-white p-6 rounded-lg shadow-lg mb-6 flex items-center justify-between gap-6"
       >
         <!-- ปุ่มเพิ่มรายการ -->
         <RouterLink
@@ -1299,21 +1299,53 @@ button:disabled {
 /* Responsive Design */
 @media (max-width: 768px) {
   .search-bar {
-    max-width: 100%; /* ใช้เต็มความกว้าง */
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.5rem;
+    border-radius: 12px;
   }
 
   .search-icon {
-    padding: 0.5rem;
+    display: none; /* ซ่อนไอคอนในมือถือ */
   }
 
   .search-input {
-    padding: 0.5rem;
-    font-size: 0.9rem;
+    font-size: 14px;
+    padding: 10px;
+    width: 100%;
+    text-align: center; /* จัดให้ข้อความอยู่ตรงกลาง */
   }
 
   .search-button {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+    width: 100%;
+    margin-top: 8px;
+    font-size: 14px;
+    padding: 10px;
+  }
+}
+/* Responsive สำหรับมือถือขนาดเล็ก */
+@media (max-width: 480px) {
+  .search-bar {
+    padding: 0.2rem 0.4rem;
+  }
+
+  .search-input {
+    font-size: 0.85rem;
+    padding: 0.2rem;
+  }
+
+  .search-button {
+    font-size: 0.85rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .search-icon-svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .search-bar-container {
+    width: 100%;
   }
 }
 /* Custom Scrollbar Styling */
@@ -1341,5 +1373,24 @@ button:disabled {
   border-radius: 4px; /* ทำมุม Track ให้โค้งมน */
   box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1); /* เพิ่มเงาใน Track */
 }
+/* ปรับขนาดและการจัดเรียงช่องค้นหา และปุ่มเพิ่มรายการ */
+.flex-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 1rem; /* ระยะห่างระหว่างปุ่มและช่องค้นหา */
+  margin-bottom: 1rem;
+}
+
+/* Responsive สำหรับ Tablet และมือถือ */
+@media (max-width: 768px) {
+  .flex-container {
+    flex-direction: column;
+    align-items: stretch; /* ทำให้เต็มความกว้าง */
+    gap: 0.75rem;
+  }
+}
+
 </style>
 

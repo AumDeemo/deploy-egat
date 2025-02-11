@@ -1853,23 +1853,50 @@ img[src]:not([alt]) {
 .action-btn:hover {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
-/* Search Bar Container */
 .search-bar-container {
-  width: 100%; /* ใช้ความกว้างเต็มพื้นที่ */
-  max-width: auto; /* กำหนดความกว้างสูงสุด */
+  width: 100%;
+  max-width: 500px; /* กำหนดขนาดสูงสุด */
+  margin: 0 auto;
 }
 
-/* Search Bar */
 .search-bar {
   display: flex;
   align-items: center;
   width: 100%;
-  background-color: #ffffff; /* สีพื้นหลัง */
-  border: 2px solid #ffc107; /* สีเหลือง EGAT */
-  border-radius: 9999px; /* มุมโค้งกลม */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
-  padding: 0.5rem 1rem; /* ระยะห่างด้านใน */
-  transition: all 0.3s ease; /* เพิ่มเอฟเฟกต์ */
+  background-color: #ffffff;
+  border: 2px solid #ffc107;
+  border-radius: 50px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 0.4rem 0.8rem;
+  transition: all 0.3s ease;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  color: #374151;
+  padding: 0.4rem 0.8rem;
+  background-color: transparent;
+  min-width: 50px;
+}
+
+.search-button {
+  background-color: #ffc107;
+  color: #374151;
+  font-weight: 600;
+  border: none;
+  border-radius: 50px;
+  padding: 0.4rem 0.8rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.search-button:hover {
+  background-color: #f9a825;
+  color: #ffffff;
 }
 
 /* Search Icon */
@@ -1886,40 +1913,6 @@ img[src]:not([alt]) {
   fill: #ffc107; /* สีเหลือง EGAT */
 }
 
-/* Search Input */
-.search-input {
-  flex: 1;
-  border: none;
-  outline: none;
-  font-size: 1rem;
-  color: #374151; /* สีข้อความ */
-  padding: 0.5rem 1rem; /* ระยะห่างภายใน */
-  background-color: transparent; /* โปร่งใส */
-}
-
-.search-input::placeholder {
-  color: #9ca3af; /* สีข้อความ Placeholder */
-  font-style: italic; /* ตัวเอียง */
-}
-
-/* Search Button */
-.search-button {
-  background-color: #ffc107; /* สีเหลือง EGAT */
-  color: #374151; /* สีเทาเข้ม */
-  font-weight: 600; /* ตัวหนา */
-  border: none;
-  border-radius: 9999px; /* มุมโค้ง */
-  padding: 0.5rem 1rem; /* ระยะห่างภายใน */
-  transition: all 0.3s ease; /* เพิ่มเอฟเฟกต์ */
-  cursor: pointer;
-}
-
-.search-button:hover {
-  background-color: #f9a825; /* สีเหลืองเข้ม */
-  color: #ffffff; /* สีตัวอักษร */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* เพิ่มเงา */
-}
-
 /* Hover Effect */
 .search-bar:hover {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* เพิ่มเงาเมื่อ Hover */
@@ -1927,6 +1920,69 @@ img[src]:not([alt]) {
 
 .search-input:focus {
   box-shadow: 0 0 6px rgba(255, 193, 7, 0.5); /* เงาสีเหลือง */
+}
+/* ปรับขนาดและการจัดเรียงช่องค้นหา และปุ่มเพิ่มรายการ */
+.flex-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 1rem; /* ระยะห่างระหว่างปุ่มและช่องค้นหา */
+  margin-bottom: 1rem;
+}
+
+/* Responsive สำหรับ Tablet และมือถือ */
+@media (max-width: 768px) {
+  .flex-container {
+    flex-direction: column;
+    align-items: stretch; /* ทำให้เต็มความกว้าง */
+    gap: 0.75rem;
+  }
+
+  .search-bar-container {
+    max-width: 100%; /* ปรับให้เต็มหน้าจอ */
+    padding: 0 1rem;
+  }
+
+  .search-bar {
+    padding: 0.3rem 0.6rem;
+  }
+
+  .search-input {
+    font-size: 0.9rem;
+    padding: 0.3rem;
+  }
+
+  .search-button {
+    font-size: 0.9rem;
+    padding: 0.3rem 0.6rem;
+  }
+}
+
+/* Responsive สำหรับมือถือขนาดเล็ก */
+@media (max-width: 480px) {
+  .search-bar {
+    padding: 0.2rem 0.4rem;
+  }
+
+  .search-input {
+    font-size: 0.85rem;
+    padding: 0.2rem;
+  }
+
+  .search-button {
+    font-size: 0.85rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .search-icon-svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .search-bar-container {
+    width: 100%;
+  }
 }
 /* ปุ่มเพิ่มรายการ และ ช่องค้นหา แนวนอน */
 .flex-container {
