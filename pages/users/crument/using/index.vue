@@ -13,7 +13,7 @@
         </p>
       </header>
       <div
-        class="bg-white p-6 rounded-lg shadow-lg mb-6 flex items-center justify-between gap-6"
+        class=" bg-white p-6 rounded-lg shadow-lg mb-6 flex items-center justify-between gap-6"
       >
         <!-- ช่องค้นหา -->
         <div class="search-bar-container">
@@ -512,7 +512,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* General Styles */
 input {
   padding: 12px;
   border: 1px solid #d1d5db;
@@ -629,29 +628,55 @@ td[data-label="รูปภาพ"] {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Scrollbar */
+/* Scrollbar ของตาราง */
 .overflow-y-auto::-webkit-scrollbar {
-  width: 12px; /* ความกว้างของ Scrollbar */
-  background-color: #f5f5f5; /* สีพื้นหลังของ Scrollbar */
-  border-radius: 6px; /* มุมโค้ง */
+  width: 10px; /* ความกว้างของ Scrollbar */
+  background-color: #f0f4f8; /* สีพื้นหลังของ Scrollbar */
+  border-radius: 8px; /* มุมโค้ง */
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: #007bff; /* สีของ Scrollbar */
-  border-radius: 6px; /* มุมโค้ง */
-  border: 3px solid #f5f5f5; /* ระยะห่างของ Scrollbar */
+  background-color: #003c71; /* สีของ Scrollbar */
+  border-radius: 8px; /* มุมโค้ง */
+  border: 2px solid #eaf4ff; /* ระยะห่างของ Scrollbar */
   transition: background-color 0.3s, border-color 0.3s; /* เพิ่มเอฟเฟกต์ */
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background-color: #0056b3; /* สีเข้มขึ้นเมื่อ Hover */
-  border-color: #e0e7ff; /* เปลี่ยนสีขอบเมื่อ Hover */
+  background-color: #00254d; /* สีเข้มขึ้นเมื่อ Hover */
+  border-color: #dbeafe; /* เปลี่ยนสีขอบเมื่อ Hover */
 }
 
 .overflow-y-auto::-webkit-scrollbar-track {
-  background-color: #e9ecef; /* สีพื้นหลังของ Track */
-  border-radius: 6px; /* มุมโค้งของ Track */
+  background-color: #ffffff; /* สีพื้นหลังของ Track */
+  border-radius: 8px; /* มุมโค้ง */
   margin: 4px; /* ระยะห่างระหว่าง Track */
+}
+
+/* Scrollbar เมื่ออยู่ใน Modal หรือ Fixed Container */
+.fixed::-webkit-scrollbar {
+  width: 10px;
+}
+
+.fixed::-webkit-scrollbar-thumb {
+  background-color: #003c71;
+  border-radius: 8px;
+}
+
+.fixed::-webkit-scrollbar-track {
+  background-color: #f0f4f8;
+  border-radius: 8px;
+}
+
+/* สำหรับขนาดหน้าจอเล็ก */
+@media (max-width: 768px) {
+  .overflow-y-auto::-webkit-scrollbar {
+    width: 8px; /* ลดความกว้างสำหรับหน้าจอเล็ก */
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb {
+    background-color: #003c71;
+  }
 }
 
 /* ปุ่ม Preview */
@@ -900,8 +925,60 @@ button:disabled {
     width: 16px;
     height: 16px;
   }
-}
+  .search-bar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.5rem;
+    border-radius: 12px;
+  }
 
+  .search-icon {
+    display: none; /* ซ่อนไอคอนในมือถือ */
+  }
+
+  .search-input {
+    font-size: 14px;
+    padding: 10px;
+    width: 100%;
+    text-align: center; /* จัดให้ข้อความอยู่ตรงกลาง */
+  }
+
+  .search-button {
+    width: 100%;
+    margin-top: 8px;
+    font-size: 14px;
+    padding: 10px;
+  }
+  .flex-container {
+    flex-direction: column;
+    align-items: stretch; /* ทำให้เต็มความกว้าง */
+    gap: 0.75rem;
+  }
+  
+}
+/* Responsive สำหรับมือถือขนาดเล็ก */
+@media (max-width: 480px) {
+  .search-bar {
+    padding: 0.2rem 0.4rem;
+  }
+
+  .search-input {
+    font-size: 0.85rem;
+    padding: 0.2rem;
+  }
+
+  .search-button {
+    font-size: 0.85rem;
+    padding: 0.2rem 0.4rem;
+  }
+  .search-icon {
+    display: none; /* ซ่อนไอคอนในมือถือ */
+  }
+
+  .search-bar-container {
+    width: 100%;
+  }
+}
 /* Custom Scrollbar Styling */
 .scrollbar-custom {
   scrollbar-width: thin; /* สำหรับ Firefox */
@@ -940,7 +1017,7 @@ button:disabled {
   width: 100%;
   background-color: #ffffff; /* สีพื้นหลัง */
   border: 2px solid #ffc107; /* สีเหลือง EGAT */
-  border-radius: 9999px; /* มุมโค้งกลม */
+  border-radius: 20px; /* มุมโค้งกลม */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
   padding: 0.5rem 1rem; /* ระยะห่างด้านใน */
   transition: all 0.3s ease; /* เพิ่มเอฟเฟกต์ */
@@ -948,10 +1025,7 @@ button:disabled {
 
 /* Search Icon */
 .search-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-right: 0.5rem;
+  padding: 0.75rem 1rem; /* เพิ่มระยะห่าง */
 }
 
 .search-icon-svg {

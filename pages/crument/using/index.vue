@@ -83,7 +83,6 @@
           <input
             v-model="date"
             type="datetime-local"
-            
             class="input input-bordered focus:ring focus:ring-blue-300"
           />
         </div>

@@ -933,8 +933,60 @@ button:disabled {
     width: 16px;
     height: 16px;
   }
-}
+  .search-bar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.5rem;
+    border-radius: 12px;
+  }
 
+  .search-icon {
+    display: none; /* ซ่อนไอคอนในมือถือ */
+  }
+
+  .search-input {
+    font-size: 14px;
+    padding: 10px;
+    width: 100%;
+    text-align: center; /* จัดให้ข้อความอยู่ตรงกลาง */
+  }
+
+  .search-button {
+    width: 100%;
+    margin-top: 8px;
+    font-size: 14px;
+    padding: 10px;
+  }
+  .flex-container {
+    flex-direction: column;
+    align-items: stretch; /* ทำให้เต็มความกว้าง */
+    gap: 0.75rem;
+  }
+  
+}
+/* Responsive สำหรับมือถือขนาดเล็ก */
+@media (max-width: 480px) {
+  .search-bar {
+    padding: 0.2rem 0.4rem;
+  }
+
+  .search-input {
+    font-size: 0.85rem;
+    padding: 0.2rem;
+  }
+
+  .search-button {
+    font-size: 0.85rem;
+    padding: 0.2rem 0.4rem;
+  }
+  .search-icon {
+    display: none; /* ซ่อนไอคอนในมือถือ */
+  }
+
+  .search-bar-container {
+    width: 100%;
+  }
+}
 /* Custom Scrollbar Styling */
 .scrollbar-custom {
   scrollbar-width: thin; /* สำหรับ Firefox */
@@ -973,7 +1025,7 @@ button:disabled {
   width: 100%;
   background-color: #ffffff; /* สีพื้นหลัง */
   border: 2px solid #ffc107; /* สีเหลือง EGAT */
-  border-radius: 9999px; /* มุมโค้งกลม */
+  border-radius: 20px; /* มุมโค้งกลม */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
   padding: 0.5rem 1rem; /* ระยะห่างด้านใน */
   transition: all 0.3s ease; /* เพิ่มเอฟเฟกต์ */
@@ -981,10 +1033,7 @@ button:disabled {
 
 /* Search Icon */
 .search-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-right: 0.5rem;
+  padding: 0.75rem 1rem; /* เพิ่มระยะห่าง */
 }
 
 .search-icon-svg {
@@ -1036,4 +1085,4 @@ button:disabled {
   box-shadow: 0 0 6px rgba(255, 193, 7, 0.5); /* เงาสีเหลือง */
 }
 </style>
-//users//curu//
+

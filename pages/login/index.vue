@@ -89,7 +89,7 @@ const login = async () => {
 
     authStore.login(response);
 
-    router.push("/admin/sparepartslist");
+    router.push("/admin");
   } catch (error) {
     console.error("Login failed", error);
     loginError.value = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";

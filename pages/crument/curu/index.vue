@@ -22,7 +22,7 @@
     <!-- Form Section -->
     <form
       @submit.prevent="curu"
-      class=" flex-container bg-white shadow-lg p-8 rounded-xl w-full max-w-5xl mt-10"
+      class="  bg-white shadow-lg p-8 rounded-xl w-full max-w-5xl mt-10"
     >
       <h2 class="text-xl font-bold text-gray-800 mb-6 text-center">
         เพิ่มรายการครุภัณฑ์
@@ -83,8 +83,7 @@
           <input
             v-model="date"
             type="datetime-local"
-            class="input-datetime"
-            placeholder="เลือกวันที่และเวลา"
+            class="input input-bordered focus:ring focus:ring-blue-300"
           />
         </div>
 
@@ -446,103 +445,6 @@ svg {
     width: 80px;
     height: 80px;
   }
-}
-/* ตกแต่งช่องเลือกวันที่ */
-.input-datetime {
-  appearance: none;
-  background-color: #f9fafb;
-  border: 1px solid #ccc;
-  border-radius: 0.375rem;
-  padding: 0.5rem;
-  font-size: 0.875rem;
-  color: #555;
-  transition: border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
-  width: 100%;
-}
-
-.input-datetime:hover {
-  border-color: #007bff;
-  background-color: #eef6ff;
-}
-
-.input-datetime:focus {
-  border-color: #0056b3;
-  outline: none;
-  background-color: #e0f2fe;
-}
-
-.input-datetime::-webkit-calendar-picker-indicator {
-  background-color: #007bff;
-  color: white;
-  border-radius: 50%;
-  padding: 5px;
-  cursor: pointer;
-}
-
-.input-datetime::-webkit-calendar-picker-indicator:hover {
-  background-color: #0056b3;
-}
-.flex-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: 1rem; /* ระยะห่างระหว่างปุ่มและช่องค้นหา */
-  margin-bottom: 1rem;
-}
-
-/* Responsive สำหรับ Tablet และมือถือ */
-@media (max-width: 768px) {
-  .flex-container {
-    flex-direction: column;
-    align-items: stretch; /* ทำให้เต็มความกว้าง */
-    gap: 0.75rem;
-  }
-
-  .search-bar-container {
-    max-width: 100%; /* ปรับให้เต็มหน้าจอ */
-    padding: 0 1rem;
-  }
-
-  .search-bar {
-    padding: 0.3rem 0.6rem;
-  }
-
-  .search-input {
-    font-size: 0.9rem;
-    padding: 0.3rem;
-  }
-
-  .search-button {
-    font-size: 0.9rem;
-    padding: 0.3rem 0.6rem;
-  }
-}
-
-/* Responsive สำหรับมือถือขนาดเล็ก */
-@media (max-width: 480px) {
-  .search-bar {
-    padding: 0.2rem 0.4rem;
-  }
-
-  .search-input {
-    font-size: 0.85rem;
-    padding: 0.2rem;
-  }
-
-  .search-button {
-    font-size: 0.85rem;
-    padding: 0.2rem 0.4rem;
-  }
-
-  .search-icon-svg {
-    width: 1.2rem;
-    height: 1.2rem;
-  }
-
-  .search-bar-container {
-    width: 100%;
-  } 
 }
 
 </style>
