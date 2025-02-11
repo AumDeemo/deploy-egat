@@ -92,11 +92,28 @@
               </RouterLink>
             </li>
           </ul>
-          <RouterLink to="/users" class="flex justify-center mt-4">
-            <button class="text-red-700 mt-4" @click="toggleMobileNav">ออกจากระบบ</button>
-          </RouterLink>
           <!-- Close Button -->
           <button class="text-gray-700 mt-4" @click="toggleMobileNav">ปิดเมนู</button>
+          <!-- ปุ่มออกจากระบบ Mobile Sidebar -->
+          <div class="mobile-logout-container">
+            <button @click="logoutAndRedirect" class="mobile-logout-button">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="#ffffff"
+                class="h-6 w-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
+                />
+              </svg>
+              <span>ออกจากระบบ</span>
+            </button>
+          </div>
         </div>
       </transition>
     </div>
@@ -117,9 +134,7 @@
         </div>
 
         <!-- Menu Title -->
-        <ul
-          class="menu bg-emerald-200 w-70 mt-0 h-[40px] flex items-center justify-center"
-        >
+        <ul class="menu bg-blue-500 w-70 mt-0 h-[40px] flex items-center justify-center">
           <h2
             class="menu-title font-light text-zinc-900 text-base text-center flex items-center justify-center w-full h-full"
           >
@@ -241,9 +256,7 @@
         </div>
 
         <!-- title bar -->
-        <div
-          class="bg-lime-200 w-full h-10 shadow-md rounded-lg flex justify-center items-center"
-        >
+        <div class="bg-blue-500 w-full h-10 flex justify-center items-center">
           <div class="flex items-center gap-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -259,7 +272,7 @@
                 d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5"
               />
             </svg>
-            <p class="text-lg font-semibold text-gray-900 tracking-wider">
+            <p class="text-lg font-semibold text-gray-100 tracking-wider">
               {{ selectedMenu }}
             </p>
             <svg
@@ -288,9 +301,11 @@
 </template>
 
 <script setup>
+import { LogoutIcon } from "@vue-hero-icons/outline";
 import { useAuthStore } from "#build/imports";
 import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import Swal from "sweetalert2";
 
 const router = useRouter();
 const route = useRoute();
@@ -349,7 +364,18 @@ onBeforeUnmount(() => {
   window.removeEventListener("click", handleClickOutsideDesktop);
 });
 
+// ฟังก์ชันเปิด/ปิดเมนูย่อยสำหรับ Hamburger Menu
+const toggleMobileMenu = (menuName) => {
+  openMobileMenu.value = openMobileMenu.value === menuName ? null : menuName;
+};
+
 const authStore = useAuthStore();
+
+const activeSubMenu = ref(null);
+
+const setActiveSubMenu = (menuName) => {
+  activeSubMenu.value = menuName;
+};
 
 // เมนูทั้งหมด
 const menus = ref([
@@ -424,10 +450,19 @@ watch(
   },
   { immediate: true }
 );
+const isModalOpen = ref(false);
 
-const logoutAndRedirect =  () => {
+const openModal = () => {
+  isModalOpen.value = true;
+};
+
+const closeModal = () => {
+  isModalOpen.value = false;
+};
+
+const logoutAndRedirect = async () => {
   try {
-    authStore.logout(); // ล็อกเอาต์
+    await authStore.logout(); // ล็อกเอาต์
   } catch (error) {
     console.error("Error logging out:", error);
   }
@@ -480,6 +515,40 @@ html {
 .logout-button:active {
   transform: translateY(0);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Container ของปุ่มออกจากระบบใน Mobile Sidebar */
+.mobile-logout-container {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  text-align: center;
+}
+
+/* ปุ่มออกจากระบบใน Mobile Sidebar */
+.mobile-logout-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background-color: #dc2626;
+  color: white;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.mobile-logout-button:hover {
+  background-color: #b91c1c;
+}
+
+.mobile-logout-button:active {
+  transform: scale(0.95);
 }
 
 /* Submenu */
@@ -597,7 +666,7 @@ li:hover {
   font-size: 1.25rem;
   text-transform: uppercase;
   font-weight: bold;
-  color: #2563eb;
+  color: #ffffff;
   text-align: center;
   padding: 0; /* ลบ padding เพื่อให้การจัดตำแหน่งทำงานได้แม่นยำ */
   margin: 0; /* ลบ margin เพื่อจัดข้อความให้ตรงกลาง */
@@ -677,4 +746,3 @@ li:hover {
   transform: translateX(-100%);
 }
 </style>
-//adminLayout//VV//13:22//
