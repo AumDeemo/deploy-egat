@@ -650,10 +650,10 @@ definePageMeta({
       <!-- Materials Table -->
       <div class="bg-white p-6 rounded-lg shadow-lg">
         <h2 class="text-xl font-bold mb-4 text-black-600 text-center">รายการอะไหล่</h2>
-        <div class="flex items-center space-x-2">
-          <label for="itemsPerPage" class="text-sm text-gray-600">แสดงรายการต่อหน้า:</label>
+        <div class="flex items-center mb-4 space-x-2">
+          <label for="itemsPerPage" class="text-sm text-gray-600">แสดงจำนวนรายการต่อหน้า:</label>
           <select id="itemsPerPage" v-model="itemsPerPage"
-            class="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" @change="currentPage = 1">
+            class="p-2 border text-right rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" @change="currentPage = 1">
             <option value="10">10</option>
             <option value="20">20</option>
             <option value="30">30</option>

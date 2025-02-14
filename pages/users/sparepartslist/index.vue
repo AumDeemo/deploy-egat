@@ -503,7 +503,7 @@ onMounted(async () => {
           </div>
         </div>
       </div>
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center mb-4 space-x-2">
           <label for="itemsPerPage" class="text-sm text-gray-600">แสดงรายการต่อหน้า:</label>
           <select id="itemsPerPage" v-model="itemsPerPage"
             class=" w-full text-right  p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" @change="currentPage = 1">
@@ -965,31 +965,31 @@ img[src]:not([alt]) {
 }
 /* สไตล์ของคอนเทนเนอร์ Pagination */
 .pagination-container {
-  background-color: #e6f0ff; /* สีพื้นหลังคอนเทนเนอร์ (น้ำเงินอ่อน) */
-  font-family: "Prompt", sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 2px;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #99c2ff; /* สีขอบ (น้ำเงิน) */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  gap: 10px;
+  margin-top: 20px;
+  padding: 12px 16px;
+  background-color: #ffffff; /* พื้นหลังสีขาว */
+  border-radius: 6px;
+  border: 1px solid #003c71; /* ขอบสีน้ำเงินเข้ม */
+  box-shadow: 0 2px 6px rgba(0, 60, 113, 0.1); /* เพิ่มเงาสีน้ำเงิน */
+  font-family: "Prompt", sans-serif;
 }
 
 /* ปุ่ม Pagination */
 .pagination-button,
 .pagination-button-first-last {
-  display: inline-block;
-  padding: 8px 16px;
-  border-radius: 4px;
-  border: 1px solid #0047ba; /* สีขอบปุ่ม */
-  background-color: #ffffff; /* สีพื้นหลังปุ่ม */
-  color: #0047ba; /* สีข้อความ (น้ำเงินเข้ม) */
-  font-size: 16px;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  padding: 10px 20px;
+  border-radius: 6px;
+  background-color: #f0f7fc; /* สีฟ้าอ่อน */
+  color: #003c71; /* สีน้ำเงินเข้ม */
+  font-weight: 500;
+  font-size: 14px;
   cursor: pointer;
+  border: 1px solid #cfe3f4; /* ขอบสีฟ้าอ่อน */
+  transition: all 0.2s ease;
   text-align: center;
   min-width: 30px;
 }
@@ -997,8 +997,10 @@ img[src]:not([alt]) {
 /* เอฟเฟกต์ Hover */
 .pagination-button:hover,
 .pagination-button-first-last:hover {
-  background-color: #e0f0ff; /* สีพื้นหลังเมื่อ Hover */
-  color: #002f73; /* สีข้อความเมื่อ Hover (น้ำเงินเข้มขึ้น) */
+  background-color: #003c71; /* สีน้ำเงินเข้ม */
+  color: #ffffff; /* สีขาว */
+  border-color: #003c71;
+  box-shadow: 0 4px 8px rgba(0, 60, 113, 0.3); /* เพิ่มเงาเมื่อ Hover */
 }
 
 /* ปุ่ม First/Last */
@@ -1019,6 +1021,7 @@ img[src]:not([alt]) {
   color: white; /* สีข้อความ */
   font-weight: 700;
   border: 1px solid #0047ba;
+  box-shadow: 0 4px 8px rgba(0, 60, 113, 0.4); /* เงาเข้มขึ้น */
 }
 
 /* ปุ่ม Disabled */
