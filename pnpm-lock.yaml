@@ -99,8 +99,8 @@ importers:
         specifier: ^2.3.1
         version: 2.3.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))
       pnpm:
-        specifier: ^10.3.0
-        version: 10.3.0
+        specifier: ^10.4.0
+        version: 10.4.0
       psql:
         specifier: ^0.0.1
         version: 0.0.1
@@ -3888,8 +3888,8 @@ packages:
     resolution: {integrity: sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==}
     engines: {node: '>=4.0.0'}
 
-  pnpm@10.3.0:
-    resolution: {integrity: sha512-7lku2ogVqKKTwga7CRfEuw/ydMUN73y8F74F7GQfwtGwJJDOZgBhNWvQ0Sak1+suyIMOaVn7ikR1ccYx1aJELQ==}
+  pnpm@10.4.0:
+    resolution: {integrity: sha512-a4SdB4fZf49OHwOpuP+PA4554VPW8RrlOa58Q1/555bfaoYsmRUCaVx/no+siur8GsWo2rR+NhSNGDgy2IbdUg==}
     engines: {node: '>=18.12'}
     hasBin: true
 
@@ -9956,7 +9956,7 @@ snapshots:
 
   pngjs@3.4.0: {}
 
-  pnpm@10.3.0: {}
+  pnpm@10.4.0: {}
 
   portfinder@1.0.32:
     dependencies:
