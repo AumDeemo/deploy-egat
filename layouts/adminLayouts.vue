@@ -301,18 +301,15 @@
 </template>
 
 <script setup>
-import { LogoutIcon } from "@vue-hero-icons/outline";
 import { useAuthStore } from "#build/imports";
 import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import Swal from "sweetalert2";
 
 const router = useRouter();
 const route = useRoute();
 
 // ตัวแปรจัดการเมนู
 const openMenu = ref(null);
-const openMobileMenu = ref(null); // เปิด/ปิด Hamburger Submenu
 const mobileNavOpen = ref(false); // ควบคุมการเปิด/ปิด Hamburger Menu
 const hamburgerMenuRef = ref(null); // สำหรับ Hamburger Menu
 const desktopMenuRef = ref(null); // สำหรับเมนูย่อยหน้าจอปกติ
@@ -364,18 +361,7 @@ onBeforeUnmount(() => {
   window.removeEventListener("click", handleClickOutsideDesktop);
 });
 
-// ฟังก์ชันเปิด/ปิดเมนูย่อยสำหรับ Hamburger Menu
-const toggleMobileMenu = (menuName) => {
-  openMobileMenu.value = openMobileMenu.value === menuName ? null : menuName;
-};
-
 const authStore = useAuthStore();
-
-const activeSubMenu = ref(null);
-
-const setActiveSubMenu = (menuName) => {
-  activeSubMenu.value = menuName;
-};
 
 // เมนูทั้งหมด
 const menus = ref([
@@ -450,15 +436,6 @@ watch(
   },
   { immediate: true }
 );
-const isModalOpen = ref(false);
-
-const openModal = () => {
-  isModalOpen.value = true;
-};
-
-const closeModal = () => {
-  isModalOpen.value = false;
-};
 
 const logoutAndRedirect = async () => {
   try {

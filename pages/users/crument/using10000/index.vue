@@ -54,6 +54,19 @@
         <h2 class="text-xl font-bold mb-4 text-blue-600 text-center">
           รายการเครื่องมือเครื่องใช้ราคาต่ำกว่า 10,000 บาท
         </h2>
+        <div class="flex items-center ่ space-x-2 mb-4">
+          <label for="itemsPerPage" class="text-sm text-gray-600 text-left text-balance">รายการจำนวนต่อหน้า:</label>
+          <select id="itemsPerPage" v-model="itemsPerPage"
+            class="w-full text-right p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            @change="currentPage = 1">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="">ทั้งหมด</option>
+          </select>
+        </div>
         <div class="overflow-x-auto">
           <!-- เพิ่ม container ที่มี scroll -->
           <div
@@ -371,8 +384,8 @@ const sortOrder = ref("asc"); // "asc" คือจากน้อยไปม�
 const isImageModalOpen = ref(false); // State สำหรับ modal
 const imageModalUrl = ref(""); // URL รูปภาพที่จะแสดงใน modal
 const currentPage = ref(1); // หน้าปัจจุบัน
-const itemsPerPage = 10; // จำนวนรายการต่อหน้า
-const maxPageDisplay = 6; // จำนวนหน้าที่แสดงใน Pagination
+const itemsPerPage = ref(10); // จำนวนรายการต่อหน้า
+const maxPageDisplay = 4; // จำนวนหน้าที่แสดงใน Pagination
 const filteredSearchResults = ref([]); // ผลลัพธ์การค้นหา
 
 const filterSearchResults = () => {
@@ -425,20 +438,26 @@ const handleSearch = () => {
 
   modalType.value = "searchResults"; // เปิด modal ผลการค้นหา
 };
+
 // แบ่งข้อมูลตาม Pagination
 const paginatedusing10000 = computed(() => {
-  const startIndex = (currentPage.value - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  if (!itemsPerPage.value) {
+    return filteredusing10000.value; // แสดงทั้งหมด
+  }
+  const startIndex = (currentPage.value - 1) * itemsPerPage.value;
+  const endIndex = startIndex + itemsPerPage.value;
   return filteredusing10000.value.slice(startIndex, endIndex);
 });
 
 // คำนวณจำนวนหน้าทั้งหมด
-const totalPages = computed(() =>
-  Math.ceil(filteredusing10000.value.length / itemsPerPage)
-);
+const totalPages = computed(() => {
+  if (!itemsPerPage.value) return 1; // แสดงทั้งหมด = 1 หน้า
+  return Math.ceil(filteredusing10000.value.length / itemsPerPage.value);
+});
 
-// คำนวณหน้าที่จะแสดงใน Pagination (สูงสุด 6 หน้า)
+// คำนวณหน้าที่จะแสดงใน Pagination 
 const visiblePages = computed(() => {
+  if (!itemsPerPage.value) return [1]; // แสดงทั้งหมด = หน้า 1
   const total = totalPages.value;
   const current = currentPage.value;
 
@@ -870,7 +889,7 @@ img.max-w-full {
   border: 1px solid #cfe3f4; /* ขอบสีฟ้าอ่อน */
   transition: all 0.2s ease;
   text-align: center;
-  min-width: 40px;
+  min-width: 30px;
 }
 
 /* Hover Effect */

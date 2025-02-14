@@ -80,6 +80,19 @@
       <!-- ตาราง -->
       <div class="bg-white p-6 rounded-lg shadow-lg">
         <h2 class="text-xl font-bold mb-4 text-blue-600 text-center">รายการครุภัณฑ์</h2>
+        <div class="flex items-center ่ space-x-2 mb-4">
+          <label for="itemsPerPage" class="text-sm text-gray-600 text-left text-balance">รายการจำนวนต่อหน้า:</label>
+          <select id="itemsPerPage" v-model="itemsPerPage"
+            class="w-full text-right p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            @change="currentPage = 1">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="">ทั้งหมด</option>
+          </select>
+        </div>
         <div class="overflow-x-auto">
           <!-- เพิ่ม container ที่มี scroll -->
           <div
@@ -593,6 +606,7 @@ import { ref, computed, onMounted} from "vue";
 import adminLayouts from "~/layouts/adminLayouts.vue";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
+import Swal from "sweetalert2";
 
 const searchQuery = ref(""); // State สำหรับช่องค้นหา
 const selectedCURU = ref(null);
@@ -603,8 +617,8 @@ const sortKey = ref("number"); // ค่าเริ่มต้นคือจ�
 const sortOrder = ref("asc"); // "asc" คือจากน้อยไปมาก, "desc" คือจากมากไปน้อย
 const previewImageUrl = ref(null);
 const currentPage = ref(1); // หน้าปัจจุบัน
-const itemsPerPage = 10; // จำนวนรายการต่อหน้า
-const maxPageDisplay = 6; // จำนวนหน้าที่แสดงใน Pagination
+const itemsPerPage = ref(10); // จำนวนรายการต่อหน้า
+const maxPageDisplay = 4; // จำนวนหน้าที่แสดงใน Pagination
 const filteredSearchResults = ref([]); // ผลลัพธ์การค้นหา
 
 const filterSearchResults = () => {
@@ -667,16 +681,22 @@ const resetForm = () => {
 
 // แบ่งข้อมูลตาม Pagination
 const paginatedCURU = computed(() => {
-  const startIndex = (currentPage.value - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  if (!itemsPerPage.value) {
+    return filteredCURU.value; // แสดงทั้งหมด
+  }
+  const startIndex = (currentPage.value - 1) * itemsPerPage.value;
+  const endIndex = startIndex + itemsPerPage.value;
   return filteredCURU.value.slice(startIndex, endIndex);
 });
 
 // คำนวณจำนวนหน้าทั้งหมด
-const totalPages = computed(() => Math.ceil(filteredCURU.value.length / itemsPerPage));
+const totalPages = computed(() => {
+  if (!itemsPerPage.value) return 1; // แสดงทั้งหมด = 1 หน้า
+  return Math.ceil(filteredCURU.value.length / itemsPerPage.value);
+});
 
-// คำนวณหน้าที่จะแสดงใน Pagination (สูงสุด 6 หน้า)
 const visiblePages = computed(() => {
+  if (!itemsPerPage.value) return [1]; // แสดงทั้งหมด = หน้า 1
   const total = totalPages.value;
   const current = currentPage.value;
 
@@ -764,13 +784,20 @@ const handleEditCURU = async () => {
     // Refresh the data and close modal
     await fetchCURU();
     closeModal();
-    toast.success("แก้ไขข้อมูลสำเร็จ!", {
-      position: "top-center",
-      autoClose: 3000,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      theme: "colored",
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      }
+    });
+    Toast.fire({
+      icon: "success",
+      title: "แก้ไขรายการสำเร็จ"
     });
   } catch (err) {
     alert("แก้ไขข้อมูลสำเร็จ!"); // เพิ่มแจ้งเตือน
@@ -818,13 +845,20 @@ const deleteCURU = async (id) => {
     // Refresh list
     await fetchCURU();
     closeModal();
-    toast.error("ลบข้อมูลสำเร็จ!", {
-      position: "top-center",
-      autoClose: 3000,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      theme: "colored",
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      }
+    });
+    Toast.fire({
+      icon: "success",
+      title: "ลบรายการสำเร็จ"
     });
   } catch (err) {
     // Show error notification
@@ -1154,6 +1188,7 @@ td:last-child {
   cursor: pointer;
   border: 2px solid #cfe3f4; /* ขอบฟ้าอ่อน */
   transition: all 0.3s ease;
+  min-width: 30px;
 }
 
 /* Hover Effect */

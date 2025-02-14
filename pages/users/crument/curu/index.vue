@@ -2,9 +2,7 @@
   <usersLayouts>
     <div class="max-w-7xl mx-auto px-4 py-6">
       <!-- ส่วนหัว -->
-      <header
-        class="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 text-white rounded-lg px-8 py-4 shadow-lg"
-      >
+      <header class="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 text-white rounded-lg px-8 py-4 shadow-lg">
         <h1 class="text-4xl font-extrabold text-center tracking-wide">
           ระบบจัดการข้อมูลครุภัณฑ์
         </h1>
@@ -12,38 +10,22 @@
           การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย (EGAT)
         </p>
       </header>
-      <div
-        class="bg-white p-6 rounded-lg shadow-lg mb-6 flex items-center justify-between gap-6"
-      >
+      <div class="bg-white p-6 rounded-lg shadow-lg mb-6 flex items-center justify-between gap-6">
         <!-- ช่องค้นหา -->
         <div class="search-bar-container">
           <div class="search-bar">
             <!-- ไอคอนค้นหา -->
             <span class="search-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                class="search-icon-svg"
-              >
-                <path
-                  d="M8.25 10.875a2.625 2.625 0 1 1 5.25 0 2.625 2.625 0 0 1-5.25 0Z"
-                />
-                <path
-                  fill-rule="evenodd"
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="search-icon-svg">
+                <path d="M8.25 10.875a2.625 2.625 0 1 1 5.25 0 2.625 2.625 0 0 1-5.25 0Z" />
+                <path fill-rule="evenodd"
                   d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-1.125 4.5a4.125 4.125 0 1 0 2.338 7.524l2.007 2.006a.75.75 0 1 0 1.06-1.06l-2.006-2.007a4.125 4.125 0 0 0-3.399-6.463Z"
-                  clip-rule="evenodd"
-                />
+                  clip-rule="evenodd" />
               </svg>
             </span>
             <!-- ช่องค้นหา -->
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="ค้นหา..."
-              class="search-input"
-              @keydown.enter="handleSearch"
-            />
+            <input v-model="searchQuery" type="text" placeholder="ค้นหา..." class="search-input"
+              @keydown.enter="handleSearch" />
             <!-- ปุ่มเปิด Modal -->
             <button @click="handleSearch" class="search-button">ค้นหา</button>
           </div>
@@ -53,14 +35,23 @@
       <!-- ตาราง -->
       <div class="bg-white p-6 rounded-lg shadow-lg">
         <h2 class="text-xl font-bold mb-4 text-blue-600 text-center">รายการครุภัณฑ์</h2>
+        <div class="flex items-center ่ space-x-2 mb-4">
+          <label for="itemsPerPage" class="text-sm text-gray-600 text-balance">รายการจำนวนต่อหน้า:</label>
+          <select id="itemsPerPage" v-model="itemsPerPage"
+            class="w-full text-right p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            @change="currentPage = 1">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="">ทั้งหมด</option>
+          </select>
+        </div>
         <div class="overflow-x-auto">
           <!-- เพิ่ม container ที่มี scroll -->
-          <div
-            class="overflow-y-auto max-h-96 rounded-lg border border-gray-300 scrollbar-custom"
-          >
-            <table
-              class="min-w-full table-auto border border-gray-300 rounded-lg shadow-sm"
-            >
+          <div class="overflow-y-auto max-h-96 rounded-lg border border-gray-300 scrollbar-custom">
+            <table class="min-w-full table-auto border border-gray-300 rounded-lg shadow-sm">
               <thead class="bg-gray-100">
                 <tr>
                   <th class="w-[50px]">ลำดับ</th>
@@ -74,12 +65,8 @@
                   <th data-label="ลำดับ">{{ curu.number }}</th>
                   <td data-label="รูปภาพ">
                     <!-- แสดงรูปภาพถ้ามี URL -->
-                    <img
-                      v-if="curu.imageUrl"
-                      :src="curu.imageUrl"
-                      alt="curu Image"
-                      class="h-16 w-16 object-cover rounded-md"
-                    />
+                    <img v-if="curu.imageUrl" :src="curu.imageUrl" alt="curu Image"
+                      class="h-16 w-16 object-cover rounded-md" />
                     <!-- แสดงข้อความถ้าไม่มีรูป -->
                     <span v-else class="text-gray-500">ไม่มีรูปภาพ</span>
                   </td>
@@ -155,21 +142,14 @@
 
       <!-- Modals -->
       <!-- Modal แสดงผลลัพธ์การค้นหา -->
-      <div
-        v-if="modalType === 'searchResults'"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-        @click.self="closeModal"
-      >
+      <div v-if="modalType === 'searchResults'"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" @click.self="closeModal">
         <!-- ปุ่มปิด -->
-        <button
-          @click="closeModal"
-          class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full hover:bg-red-600 transition"
-        >
+        <button @click="closeModal"
+          class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full hover:bg-red-600 transition">
           ✕
         </button>
-        <div
-          class="bg-white p-6 rounded-lg w-full max-w-5xl max-h-[90vh] overflow-auto shadow-lg relative"
-        >
+        <div class="bg-white p-6 rounded-lg w-full max-w-5xl max-h-[90vh] overflow-auto shadow-lg relative">
           <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">
             ผลลัพธ์การค้นหา
           </h2>
@@ -181,21 +161,15 @@
 
           <!-- ช่องพิมพ์ค้นหาภายใน modal -->
           <div class="mb-6">
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="พิมพ์เพื่อค้นหา..."
+            <input v-model="searchQuery" type="text" placeholder="พิมพ์เพื่อค้นหา..."
               class="search-input w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              @input="filterSearchResults"
-            />
+              @input="filterSearchResults" />
           </div>
 
           <!-- แสดงผลเป็นตาราง -->
           <div class="bg-white p-6 rounded-lg shadow-lg">
             <div class="overflow-y-auto max-h-96">
-              <table
-                class="min-w-full table-auto border border-gray-300 rounded-lg shadow-sm"
-              >
+              <table class="min-w-full table-auto border border-gray-300 rounded-lg shadow-sm">
                 <thead class="bg-gray-100">
                   <tr>
                     <th class="w-[50px]">ลำดับ</th>
@@ -209,18 +183,11 @@
                   <tr v-for="result in filteredSearchResults" :key="result.id">
                     <td data-label="ลำดับ">{{ result.number }}</td>
                     <td data-label="รูปภาพ">
-                      <img
-                        v-if="result.imageUrl"
-                        :src="result.imageUrl"
-                        alt="Result Image"
-                        class="h-16 w-16 object-cover rounded-md"
-                      />
+                      <img v-if="result.imageUrl" :src="result.imageUrl" alt="Result Image"
+                        class="h-16 w-16 object-cover rounded-md" />
                       <span v-else class="text-gray-500">ไม่มีรูปภาพ</span>
                     </td>
-                    <td
-                      data-label="ชื่อรุ่น"
-                      @click="openModal(MODAL_TYPES.DETAILS, result)"
-                    >
+                    <td data-label="ชื่อรุ่น" @click="openModal(MODAL_TYPES.DETAILS, result)">
                       <span v-html="highlightText(result.name, searchQuery)"></span>
                     </td>
                     <td data-label="รหัสสินทรัพย์">
@@ -239,18 +206,12 @@
         </div>
       </div>
       <!-- Details Modal -->
-      <div
-        v-if="modalType === MODAL_TYPES.DETAILS"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-      >
-        <div
-          class="bg-white p-6 rounded-lg w-[800px] max-h-[90vh] overflow-auto shadow-lg relative"
-        >
+      <div v-if="modalType === MODAL_TYPES.DETAILS"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white p-6 rounded-lg w-[800px] max-h-[90vh] overflow-auto shadow-lg relative">
           <!-- ปุ่มปิดมุมขวาบน -->
-          <button
-            @click="closeModal"
-            class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full hover:bg-red-600 transition"
-          >
+          <button @click="closeModal"
+            class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full hover:bg-red-600 transition">
             ✕
           </button>
           <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">
@@ -259,9 +220,7 @@
 
           <!-- Table for Details -->
           <div class="overflow-x-auto">
-            <table
-              class="details-modal w-full text-left border-collapse border border-gray-300"
-            >
+            <table class="details-modal w-full text-left border-collapse border border-gray-300">
               <thead class="bg-blue-100 text-blue-600 font-semibold">
                 <tr>
                   <th class="py-3 px-4 border-b border-gray-300">ลำดับที่</th>
@@ -279,9 +238,7 @@
                 </tr>
               </tbody>
             </table>
-            <table
-              class="details-modal w-full mt-1 text-left border-collapse border border-gray-300"
-            >
+            <table class="details-modal w-full mt-1 text-left border-collapse border border-gray-300">
               <thead class="bg-blue-100 text-blue-600 font-semibold">
                 <tr>
                   <th class="py-3 px-4 border-b border-gray-300">ยี่ห้อ</th>
@@ -305,40 +262,24 @@
 
           <!-- Image Preview -->
           <div class="preview-container">
-            <img
-              v-if="selectedCURU.imageUrl"
-              :src="selectedCURU.imageUrl"
-              alt="Image Preview"
-              class="image-preview"
-              @click="openImageModal(selectedCURU.imageUrl)"
-            />
+            <img v-if="selectedCURU.imageUrl" :src="selectedCURU.imageUrl" alt="Image Preview" class="image-preview"
+              @click="openImageModal(selectedCURU.imageUrl)" />
             <p v-else class="text-gray-500 text-center font-semibold">ไม่มีรูปภาพ</p>
           </div>
 
           <!-- Fullscreen Image Modal -->
-          <div
-            v-if="isImageModalOpen"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80"
-          >
-            <button
-              @click="closeImageModal"
-              class="absolute top-4 right-4 text-white bg-red-500 px-3 py-2 rounded-full hover:bg-red-600"
-            >
+          <div v-if="isImageModalOpen"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
+            <button @click="closeImageModal"
+              class="absolute top-4 right-4 text-white bg-red-500 px-3 py-2 rounded-full hover:bg-red-600">
               ✕
             </button>
-            <img
-              :src="imageModalUrl"
-              alt="Expanded Image"
-              class="max-w-full max-h-full object-contain rounded-lg"
-            />
+            <img :src="imageModalUrl" alt="Expanded Image" class="max-w-full max-h-full object-contain rounded-lg" />
           </div>
 
           <!-- Close Button -->
           <div class="mt-6 flex justify-end">
-            <button
-              @click="closeModal"
-              class="bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-gray-400"
-            >
+            <button @click="closeModal" class="bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-gray-400">
               ปิด
             </button>
           </div>
@@ -363,8 +304,8 @@ const sortOrder = ref("asc"); // "asc" คือจากน้อยไปม�
 const isImageModalOpen = ref(false); // สถานะ Modal
 const imageModalUrl = ref(""); // URL ของรูปภาพใน Modal
 const currentPage = ref(1); // หน้าปัจจุบัน
-const itemsPerPage = 10; // จำนวนรายการต่อหน้า
-const maxPageDisplay = 6; // จำนวนหน้าที่แสดงใน Pagination
+const itemsPerPage = ref(10); // จำนวนรายการต่อหน้า
+const maxPageDisplay = 4; // จำนวนหน้าที่แสดงใน Pagination
 const filteredSearchResults = ref([]); // ผลลัพธ์การค้นหา
 
 const filterSearchResults = () => {
@@ -423,16 +364,22 @@ const handleSearch = () => {
 
 // แบ่งข้อมูลตาม Pagination
 const paginatedCURU = computed(() => {
-  const startIndex = (currentPage.value - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  if (!itemsPerPage.value) {
+    return filteredCURU.value; // แสดงทั้งหมด
+  }
+  const startIndex = (currentPage.value - 1) * itemsPerPage.value;
+  const endIndex = startIndex + itemsPerPage.value;
   return filteredCURU.value.slice(startIndex, endIndex);
 });
 
 // คำนวณจำนวนหน้าทั้งหมด
-const totalPages = computed(() => Math.ceil(filteredCURU.value.length / itemsPerPage));
+const totalPages = computed(() => {
+  if (!itemsPerPage.value) return 1; // แสดงทั้งหมด = 1 หน้า
+  return Math.ceil(filteredCURU.value.length / itemsPerPage.value);
+});
 
-// คำนวณหน้าที่จะแสดงใน Pagination (สูงสุด 6 หน้า)
 const visiblePages = computed(() => {
+  if (!itemsPerPage.value) return [1]; // แสดงทั้งหมด = หน้า 1
   const total = totalPages.value;
   const current = currentPage.value;
 
@@ -446,6 +393,7 @@ const visiblePages = computed(() => {
   }
   return Array.from({ length: end - start + 1 }, (_, i) => start + i);
 });
+
 
 const openImageModal = (imageUrl) => {
   imageModalUrl.value = imageUrl;
@@ -864,7 +812,7 @@ img.max-w-full {
   border: 1px solid #cfe3f4; /* ขอบสีฟ้าอ่อน */
   transition: all 0.2s ease;
   text-align: center;
-  min-width: 40px;
+  min-width: 30px;
 }
 
 /* Hover Effect */

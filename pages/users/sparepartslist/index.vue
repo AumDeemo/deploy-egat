@@ -17,7 +17,7 @@ const notificationDropdownRef = ref(null); // อ้างอิง dropdown แ
 const isImageModalOpen = ref(false); // สถานะเปิด/ปิดโมดอล
 const modalImageUrl = ref(""); // เก็บ URL ของรูปภาพที่เลือก
 const currentPage = ref(1); // หน้าปัจจุบัน
-const itemsPerPage = 10; // จำนวนรายการต่อหน้า
+const itemsPerPage = ref(10); // จำนวนรายการต่อหน้า
 const isSearchModalOpen = ref(false); // สถานะเปิด/ปิด modal ค้นหา
 
 const fuseOptions = {
@@ -67,32 +67,38 @@ const handleSearch = () => {
 };
 // คำนวณจำนวนหน้าทั้งหมด
 const totalPageCount = computed(() =>
-  Math.ceil(filteredMaterials.value.length / itemsPerPage)
+{// คำนวณจำนวนหน้าจาก filteredMaterials
+  return Math.ceil(filteredMaterials.value.length / (itemsPerPage.value || filteredMaterials.value.length));}
 );
+
+
+const visiblePages = computed(() => {
+  const maxVisible = 4; // จำนวนหน้าที่จะแสดงพร้อมกัน
+  const pages = [];
+
+
+  // คำนวณช่วงของหน้า
+  const startPage = Math.max(
+    1,
+    Math.min(
+      currentPage.value - Math.floor(maxVisible / 2),
+      totalPageCount.value - maxVisible + 1
+    )
+  );
+  const endPage = Math.min(totalPageCount.value, startPage + maxVisible - 1);
+
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i);
+  }
+  return pages;
+});
 
 // คำนวณรายการในหน้าปัจจุบัน
 const paginatedMaterials = computed(() => {
-  const startIndex = (currentPage.value - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  return filteredMaterials.value.slice(startIndex, endIndex);
-});
-
-const visiblePages = computed(() => {
-  const maxVisiblePages = 6; // จำนวนหน้าที่แสดงพร้อมกัน
-  const totalPages = totalPageCount.value;
-
-  // หาค่าหน้าต้นและท้ายในช่วงที่แสดง
-  let startPage = Math.max(1, currentPage.value - Math.floor(maxVisiblePages / 2));
-  let endPage = startPage + maxVisiblePages - 1;
-
-  // ตรวจสอบว่าหากเกินจำนวนหน้าทั้งหมด
-  if (endPage > totalPages) {
-    endPage = totalPages;
-    startPage = Math.max(1, endPage - maxVisiblePages + 1);
-  }
-
-  // สร้าง Array ของเลขหน้า
-  return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+  const filtered = filteredMaterials.value; // 
+  const startIndex = (currentPage.value - 1) * (itemsPerPage.value || filtered.length);
+  const endIndex = itemsPerPage.value ? startIndex + itemsPerPage.value : filtered.length;
+  return filtered.slice(startIndex, endIndex);
 });
 
 // ฟังก์ชันเปิดโมดอลแสดงรูปภาพ
@@ -172,7 +178,7 @@ const fetchMaterials = async () => {
 // ดึงข้อมูลหมวดหมู่
 const fetchCategories = async () => {
   try {
-    const response = await fetch("/api/admin/neww/category");
+    const response = await fetch("/api/admin/new/category");
     const result = await response.json();
     if (result.status === "success") {
       categories.value = result.data;
@@ -497,6 +503,18 @@ onMounted(async () => {
           </div>
         </div>
       </div>
+      <div class="flex items-center space-x-2">
+          <label for="itemsPerPage" class="text-sm text-gray-600">แสดงรายการต่อหน้า:</label>
+          <select id="itemsPerPage" v-model="itemsPerPage"
+            class=" w-full text-right  p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" @change="currentPage = 1">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="">ทั้งหมด</option>
+          </select>
+        </div>
       <!-- Table -->
       <div class="overflow-x-auto">
         <div class="table-container justify-center w-full overflow-x-auto">
@@ -556,7 +574,7 @@ onMounted(async () => {
           class="pagination-button-first-last text-blue-500 border-blue-500"
           :disabled="currentPage === 1"
           @click="currentPage = 1"
-          v-if="currentPage > 4"
+          v-if="currentPage > 3"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -973,6 +991,7 @@ img[src]:not([alt]) {
   transition: all 0.3s ease;
   cursor: pointer;
   text-align: center;
+  min-width: 30px;
 }
 
 /* เอฟเฟกต์ Hover */
@@ -1182,6 +1201,22 @@ img[src]:not([alt]) {
   background-color: #e63946;
   transform: scale(1.1);
 }
+
+select {
+  appearance: none;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.5rem 2rem 0.5rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  cursor: pointer;
+}
+
+select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
 </style>
 
-//sparepartslist//user//V3//13:25
