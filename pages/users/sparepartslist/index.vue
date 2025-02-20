@@ -1062,7 +1062,7 @@ img[src]:not([alt]) {
   /* ปรับความสูงอัตโนมัติตามเนื้อหา */
   overflow-y: auto;
   /* เพิ่ม scroll หากเนื้อหายาวเกิน */
-  border: 1px solid #ddd;
+  border: 2px solid #ddd;
   scrollbar-width: thin;
   /* สำหรับ Firefox */
   scrollbar-color: #007bff #f1f1f1;
