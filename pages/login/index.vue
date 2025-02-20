@@ -4,7 +4,7 @@
   >
     <form
       @submit.prevent="login"
-      class="card w-full max-w-lg bg-white text-gray-800 shadow-2xl rounded-xl border-t-8 border-blue-600"
+      class="card w-full max-w-lg bg-white text-gray-800 shadow-2xl rounded-xl  mx-4"
     >
       <div class="card-body p-10">
         <!-- Header -->
@@ -122,4 +122,5 @@ const login = async () => {
   transform: scale(1.05); /* ขยายปุ่มเพิ่มขึ้น 10% */
   transition: transform 0.2s ease-in-out; /* เพิ่มความลื่นไหล */
 }
+
 </style>

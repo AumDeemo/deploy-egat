@@ -5,7 +5,7 @@
       <header
         class="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 text-white rounded-lg px-8 py-4 shadow-lg"
       >
-        <h1 class="text-4xl font-extrabold text-center tracking-wide">
+        <h1 class="text-3xl font-extrabold text-center tracking-wide">
           ระบบจัดการข้อมูลเครื่องมือเครื่องใช้ราคาต่ำกว่า 10,000 บาท
         </h1>
         <p class="text-center text-sm mt-2 font-light">
@@ -80,18 +80,30 @@
         <h2 class="text-xl font-bold mb-4 text-blue-600 text-center">
           รายการเครื่องมือเครื่องใช้ราคาต่ำกว่า 10,000 บาท
         </h2>
-        <div class="flex items-center ่ space-x-2 mb-4">
-          <label for="itemsPerPage" class="text-sm text-gray-600 text-left text-balance">รายการจำนวนต่อหน้า:</label>
-          <select id="itemsPerPage" v-model="itemsPerPage"
-            class="w-full text-right p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            @change="currentPage = 1">
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="30">30</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-            <option value="">ทั้งหมด</option>
-          </select>
+        <div class="flex items-center mb-4 space-x-2">
+          <label for="itemsPerPage" class="text-sm text-gray-600">รายการจำนวนต่อหน้า:</label>
+          <div class="relative w-full">
+            <select id="itemsPerPage" v-model="itemsPerPage" ref="dropdownWrapper"
+              class="w-full text-right p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none pr-10 bg-white"
+              @focus="isDropdownOpen = true" @mousedown="toggleDropdown">
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="">ทั้งหมด</option>
+            </select>
+            <!-- ไอคอนลูกศร -->
+            <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="gray"
+                :class="{ 'rotate-180': isDropdownOpen, 'rotate-0': !isDropdownOpen }"
+                class="w-5 h-5 transition-transform duration-300">
+                <path fill-rule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
         </div>
         <div class="overflow-x-auto">
           <!-- เพิ่ม container ที่มี scroll -->
@@ -174,7 +186,7 @@
               class="pagination-button-first"
               :disabled="currentPage === 1"
               @click="currentPage = 1"
-              v-if="currentPage > 4"
+              v-if="currentPage > 3"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -278,8 +290,8 @@
                 </thead>
                 <tbody>
                   <tr v-for="result in filteredSearchResults" :key="result.id">
-                    <td>{{ result.number }}</td>
-                    <td>
+                    <td data-label="ลำดับ">{{ result.number }}</td>
+                    <td data-label="รูปภาพ">
                       <img
                         v-if="result.imageUrl"
                         :src="result.imageUrl"
@@ -288,13 +300,13 @@
                       />
                       <span v-else class="text-gray-500">ไม่มีรูปภาพ</span>
                     </td>
-                    <td>
+                    <td data-label="ชื่อรุ่น">
                       <span v-html="highlightText(result.name, searchQuery)"></span>
                     </td>
-                    <td>
+                    <td data-label="รหัสเครื่องมือเครื่องใช้">
                       <span v-html="highlightText(result.partnumber, searchQuery)"></span>
                     </td>
-                    <td>
+                    <td data-label="รายละเอียด">
                       <button
                         @click="openModal(MODAL_TYPES.DETAILS, result)"
                         class="preview-btn"
@@ -302,7 +314,7 @@
                         รายละเอียด
                       </button>
                     </td>
-                    <td>
+                    <td data-label="แก้ไข">
                       <button
                         @click="openModal(MODAL_TYPES.EDIT, result)"
                         class="edit-btn"
@@ -310,7 +322,7 @@
                         แก้ไข
                       </button>
                     </td>
-                    <td>
+                    <td data-label="ลบรายการ">
                       <button
                         @click="openModal(MODAL_TYPES.DELETE, result)"
                         class="delete-btn"
@@ -336,7 +348,7 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
       >
         <div
-          class="bg-white p-6 rounded-lg w-[800px] max-h-[90vh] overflow-auto shadow-lg relative"
+          class="bg-white p-6 rounded-lg w-[800px] max-h-[90vh] overflow-auto shadow-lg relative mx-4 "
         >
           <!-- ปุ่มปิดมุมขวาบน -->
           <button
@@ -366,10 +378,10 @@
               </thead>
               <tbody>
                 <tr>
-                  <td class="py-2 px-4 border-b">{{ selectedusing10000.number }}</td>
-                  <td class="py-2 px-4 border-b">{{ selectedusing10000.curunumber }}</td>
-                  <td class="py-2 px-4 border-b">{{ selectedusing10000.partnumber }}</td>
-                  <td class="py-2 px-4 border-b">{{ selectedusing10000.detial }}</td>
+                  <td data-label="ลำดับ"  class="py-2 px-4 border-b">{{ selectedusing10000.number }}</td>
+                  <td data-label="รหัสพัสดุ" class="py-2 px-4 border-b">{{ selectedusing10000.curunumber }}</td>
+                  <td data-label="รหัสเครื่องมือเครื่องใช้" class="py-2 px-4 border-b">{{ selectedusing10000.partnumber }}</td>
+                  <td data-label="รายละเอียด" class="py-2 px-4 border-b">{{ selectedusing10000.detial }}</td>
                 </tr>
               </tbody>
             </table>
@@ -387,13 +399,13 @@
               </thead>
               <tbody>
                 <tr>
-                  <td class="py-2 px-4 border-b">{{ selectedusing10000.brand }}</td>
-                  <td class="py-2 px-4 border-b">{{ selectedusing10000.name }}</td>
-                  <td class="py-2 px-4 border-b">{{ selectedusing10000.usenumber }}</td>
-                  <td class="py-2 px-4 border-b">
+                  <td data-label="ยี่ห้อ"  class="py-2 px-4 border-b">{{ selectedusing10000.brand }}</td>
+                  <td data-label="รุ่น" class="py-2 px-4 border-b">{{ selectedusing10000.name }}</td>
+                  <td data-label="หมายเลขเครื่อง" class="py-2 px-4 border-b">{{ selectedusing10000.usenumber }}</td>
+                  <td data-label="วันที่ได้รับมา" class="py-2 px-4 border-b">
                     {{ formatDate(selectedusing10000.date) }}
                   </td>
-                  <td class="py-2 px-4 border-b">
+                  <td data-label="เลขที่ใบโอน"  class="py-2 px-4 border-b">
                     {{ selectedusing10000.detialnumber }}
                   </td>
                 </tr>
@@ -427,158 +439,165 @@
 
       <!-- Edit Modal -->
       <div
-        v-if="modalType === MODAL_TYPES.EDIT"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-      >
-        <div
-          class="bg-white p-6 rounded-lg w-full max-w-3xl max-h-[80vh] overflow-auto shadow-xl"
-        >
-          <h2 class="text-xl font-bold mb-6 text-center text-blue-600">
-            แก้ไขข้อมูลคุรุภัณฑ์ (ราคาต่ำกว่า 10,000)
-          </h2>
+  v-if="modalType === MODAL_TYPES.EDIT"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+>
+<button
+            @click="closeModal"
+            class="absolute right-2 top-2 bg-red-500 text-white px-2 py-1 rounded-full hover:bg-red-600 transition"
+          >
+            ✕
+          </button>
+  <div
+    class="bg-white p-6 rounded-lg w-full max-w-3xl max-h-[80vh] overflow-auto shadow-xl mx-4"
+  >
+    <h2 class="text-xl font-bold mb-6 text-center text-blue-600">
+      แก้ไขข้อมูลเครื่องมือเครื่องใช้ราคาต่ำกว่า 10,000 บาท
+    </h2>
 
-          <!-- Edit Form -->
-          <form>
-            <!-- Grid Layout -->
-            <div class="grid grid-cols-3 gap-6">
-              <!-- Column 1 -->
-              <div class="form-control">
-                <label class="font-medium text-gray-700">ลำดับ</label>
-                <input
-                  v-model="selectedusing10000.number"
-                  class="input input-bordered focus:ring focus:ring-blue-300"
-                  placeholder="กรอกลำดับ"
-                />
-              </div>
-              <div class="form-control">
-                <label class="font-medium text-gray-700">ชื่อรุ่น</label>
-                <input
-                  v-model="selectedusing10000.name"
-                  class="input input-bordered focus:ring focus:ring-blue-300"
-                  placeholder="กรอกชื่อรุ่น"
-                />
-              </div>
-              <div class="form-control">
-                <label class="font-medium text-gray-700">ยี่ห้อ</label>
-                <input
-                  v-model="selectedusing10000.brand"
-                  class="input input-bordered focus:ring focus:ring-blue-300"
-                  placeholder="กรอกยี่ห้อ"
-                />
-              </div>
+    <!-- Edit Form -->
+    <form>
+      <!-- Stacked Layout -->
+      <div class="space-y-4">
+        <!-- ช่องกรอกข้อมูล -->
+        <div class="form-control">
+          <label class="font-medium text-gray-700">ลำดับ</label>
+          <input
+            v-model="selectedusing10000.number"
+            class="input input-bordered w-full focus:ring focus:ring-blue-300"
+            placeholder="กรอกลำดับ"
+          />
+        </div>
+        <div class="form-control">
+          <label class="font-medium text-gray-700">ชื่อรุ่น</label>
+          <input
+            v-model="selectedusing10000.name"
+            class="input input-bordered w-full focus:ring focus:ring-blue-300"
+            placeholder="กรอกชื่อรุ่น"
+          />
+        </div>
+        <div class="form-control">
+          <label class="font-medium text-gray-700">ยี่ห้อ</label>
+          <input
+            v-model="selectedusing10000.brand"
+            class="input input-bordered w-full focus:ring focus:ring-blue-300"
+            placeholder="กรอกยี่ห้อ"
+          />
+        </div>
+        <div class="form-control">
+          <label class="font-medium text-gray-700">รหัสพัสดุ</label>
+          <input
+            v-model="selectedusing10000.curunumber"
+            class="input input-bordered w-full focus:ring focus:ring-blue-300"
+            placeholder="กรอกรหัสพัสดุ"
+          />
+        </div>
+        <div class="form-control">
+          <label class="font-medium text-gray-700">รหัสเครื่องมือเครืองใช้</label>
+          <input
+            v-model="selectedusing10000.partnumber"
+            class="input input-bordered w-full focus:ring focus:ring-blue-300"
+            placeholder="กรอกรหัสเครื่องมือเครื่องใช้"
+          />
+        </div>
+        <div class="form-control">
+          <label class="font-medium text-gray-700">หมายเลขเครื่อง</label>
+          <input
+            v-model="selectedusing10000.usenumber"
+            class="input input-bordered w-full focus:ring focus:ring-blue-300"
+            placeholder="กรอกหมายเลขเครื่อง"
+          />
+        </div>
+        <div class="form-control">
+          <label class="font-medium text-gray-700">วันที่ได้มา</label>
+          <input
+            v-model="selectedusing10000.date"
+            type="datetime-local"
+            class="input input-bordered w-full focus:ring focus:ring-blue-300"
+          />
+        </div>
+        <div class="form-control">
+          <label class="font-medium text-gray-700">รายละเอียด</label>
+          <textarea
+            v-model="selectedusing10000.detial"
+            class="textarea textarea-bordered w-full focus:ring focus:ring-blue-300"
+            placeholder="กรอกรายละเอียด"
+          ></textarea>
+        </div>
+        <div class="form-control">
+          <label class="font-medium text-gray-700">เลขที่ใบโอน</label>
+          <input
+            v-model="selectedusing10000.detialnumber"
+            class="input input-bordered w-full focus:ring focus:ring-blue-300"
+            placeholder="กรอกเลขที่ใบโอน"
+          />
+        </div>
 
-              <!-- Column 2 -->
-              <div class="form-control">
-                <label class="font-medium text-gray-700">รหัสพัสดุ</label>
-                <input
-                  v-model="selectedusing10000.curunumber"
-                  class="input input-bordered focus:ring focus:ring-blue-300"
-                  placeholder="กรอกรหัสพัสดุ"
-                />
-              </div>
-              <div class="form-control">
-                <label class="font-medium text-gray-700">รหัสเครื่องมือเครืองใช้</label>
-                <input
-                  v-model="selectedusing10000.partnumber"
-                  class="input input-bordered focus:ring focus:ring-blue-300"
-                  placeholder="กรอกรหัสเครื่องมือเครืองใช้"
-                />
-              </div>
-              <div class="form-control">
-                <label class="font-medium text-gray-700">หมายเลขเครื่อง</label>
-                <input
-                  v-model="selectedusing10000.usenumber"
-                  class="input input-bordered focus:ring focus:ring-blue-300"
-                  placeholder="กรอกหมายเลขเครื่อง"
-                />
-              </div>
+        <!-- ช่องแสดงรูปภาพ -->
+        <div class="form-control">
+          <label class="font-medium text-gray-700">รูปภาพปัจจุบัน</label>
+          <div class="flex justify-center items-center">
+            <img
+              v-if="previewImageUrl"
+              :src="previewImageUrl"
+              alt="Preview Image"
+              class="h-40 w-40 object-cover rounded-md border border-gray-300 shadow-sm"
+            />
+            <img
+              v-else-if="selectedusing10000.imageUrl"
+              :src="selectedusing10000.imageUrl"
+              alt="Current Image"
+              class="h-40 w-40 object-cover rounded-md border border-gray-300 shadow-sm"
+            />
+            <p
+              v-else
+              class="text-gray-700 text-center font-semibold"
+            >
+              ไม่มีรูปภาพ
+            </p>
+          </div>
+        </div>
 
-              <!-- Column 3 -->
-              <div class="form-control col-span-3">
-                <label class="font-medium text-gray-700">วันที่ได้มา</label>
-                <input
-                  v-model="selectedusing10000.date"
-                  type="datetime-local"
-                  class="input input-bordered focus:ring focus:ring-blue-300"
-                />
-              </div>
-              <div class="form-control col-span-3">
-                <label class="font-medium text-gray-700">รายละเอียด</label>
-                <textarea
-                  v-model="selectedusing10000.detial"
-                  class="textarea textarea-bordered focus:ring focus:ring-blue-300"
-                  placeholder="กรอกรายละเอียด"
-                ></textarea>
-              </div>
-              <div class="form-control col-span-3">
-                <label class="font-medium text-gray-700">เลขที่ใบโอน</label>
-                <input
-                  v-model="selectedusing10000.detialnumber"
-                  class="input input-bordered focus:ring focus:ring-blue-300"
-                  placeholder="กรอกเลขที่ใบโอน"
-                />
-              </div>
-
-              <!-- ช่องแสดงรูปภาพ -->
-              <div class="form-control col-span-3">
-                <label class="font-medium text-gray-700">รูปภาพปัจจุบัน</label>
-                <div class="flex justify-center items-center">
-                  <img
-                    v-if="previewImageUrl"
-                    :src="previewImageUrl"
-                    alt="Preview Image"
-                    class="h-40 w-40 object-cover rounded-md border border-gray-300 shadow-sm"
-                  />
-                  <img
-                    v-else-if="selectedusing10000.imageUrl"
-                    :src="selectedusing10000.imageUrl"
-                    alt="Current Image"
-                    class="h-40 w-40 object-cover rounded-md border border-gray-300 shadow-sm"
-                  />
-                  <p v-else class="text-gray-500 text-center">ไม่มีรูปภาพ</p>
-                </div>
-              </div>
-
-              <!-- ช่องอัปโหลดรูปภาพ -->
-              <div class="form-control col-span-3">
-                <label class="font-medium text-gray-700">อัปโหลดรูปภาพใหม่ (ถ้ามี)</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  @change="handleImageChange"
-                  class="file-input file-input-bordered w-full"
-                />
-                <p class="text-sm text-gray-500 mt-2">เลือกรูปภาพใหม่เพื่ออัปเดตข้อมูล</p>
-              </div>
-            </div>
-
-            <!-- Buttons -->
-            <div class="mt-8 flex justify-end gap-4">
-              <button
-                @click="closeModal"
-                type="button"
-                class="bg-gray-300 text-black px-6 py-2 rounded-full hover:bg-gray-400 transition"
-              >
-                ยกเลิก
-              </button>
-              <button
-                @click="handleEditusing10000"
-                type="button"
-                class="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition"
-              >
-                บันทึก
-              </button>
-            </div>
-          </form>
+        <!-- ช่องอัปโหลดรูปภาพ -->
+        <div class="form-control">
+          <label class="font-medium text-gray-700">อัปโหลดรูปภาพใหม่ (ถ้ามี)</label>
+          <input
+            type="file"
+            accept="image/*"
+            @change="handleImageChange"
+            class="file-input file-input-bordered w-full"
+          />
+          <p class="text-sm text-gray-500 mt-2">เลือกรูปภาพใหม่เพื่ออัปเดตข้อมูล</p>
         </div>
       </div>
+
+      <!-- Buttons -->
+      <div class="mt-8 flex justify-end gap-4">
+        <button
+          @click="closeModal"
+          type="button"
+          class="bg-gray-300 text-black px-6 py-2 rounded-full hover:bg-gray-400 transition"
+        >
+          ยกเลิก
+        </button>
+        <button
+          @click="handleEditusing10000"
+          type="button"
+          class="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition"
+        >
+          บันทึก
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
 
       <!-- Delete Modal -->
       <div
         v-if="modalType === MODAL_TYPES.DELETE"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
       >
-        <div class="bg-white p-6 rounded-lg w-96">
+        <div class="bg-white p-6 rounded-lg w-96 mx-4">
           <h2 class="text-xl font-bold mb-4">ยืนยันการลบรายการ: {{ selectedC?.name }}</h2>
           <p class="text-gray-600 mb-4">คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?</p>
           <div class="flex justify-between">
@@ -599,9 +618,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, toRaw } from "vue";
+import { ref, computed, onMounted } from "vue";
 import adminLayouts from "~/layouts/adminLayouts.vue";
-import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 import Swal from "sweetalert2";
 
@@ -617,6 +635,8 @@ const currentPage = ref(1); // หน้าปัจจุบัน
 const itemsPerPage = ref(10); // จำนวนรายการต่อหน้า
 const maxPageDisplay = 4; // จำนวนหน้าที่แสดงใน Pagination
 const filteredSearchResults = ref([]); // ผลลัพธ์การค้นหา
+const isDropdownOpen = ref(false);
+const dropdownWrapper = ref(null);
 
 const filterSearchResults = () => {
   const query = searchQuery.value.trim().toLowerCase();
@@ -634,6 +654,17 @@ const filterSearchResults = () => {
       item.partnumber?.toLowerCase().includes(query) ||
       (item.detial && item.detial.toLowerCase().includes(query))
   );
+};
+
+const toggleDropdown = () => {
+  isDropdownOpen.value = !isDropdownOpen.value;
+};
+
+// ฟังก์ชันจัดการคลิกนอก
+const handleClickOutside = (event) => {
+  if (dropdownWrapper.value && !dropdownWrapper.value.contains(event.target)) {
+    isDropdownOpen.value = false; // ปิด dropdown
+  }
 };
 
 const highlightText = (text, query) => {
@@ -885,6 +916,11 @@ const closeModal = () => {
 
 onMounted(async () => {
   await fetchusing10000();
+  document.addEventListener('click', handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
 });
 
 definePageMeta({
@@ -977,11 +1013,12 @@ td[data-label="รูปภาพ"] {
 }
 
 .table-auto th,
-.table-auto td {
+.table-auto td [data-label="ลำดับ"] {
   padding: 16px;
-  text-align: center;
   border-bottom: 1px solid #e5e7eb;
+  text-align: center;
 }
+
 
 .table-auto th {
   background-color: #007bff; /* สีหัวตาราง */
@@ -1070,29 +1107,16 @@ td[data-label="รูปภาพ"] {
   letter-spacing: 0.5px;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  input {
-    font-size: 14px;
-    padding: 10px;
-  }
-
-  .download-btn,
-  .delete-btn,
-  .preview-btn {
-    font-size: 12px;
-    padding: 10px 16px;
-  }
-
-  .table-auto th,
-  .table-auto td {
-    font-size: 12px;
-    padding: 10px;
-  }
+th{
+  border-right: 1px solid #d1d5db; /* เส้นแนวตั้งสีเทาอ่อน */
+  gap: 12px;
+  white-space: nowrap;
+  text-align: left;
 }
-th,
+
 td {
   border-right: 1px solid #d1d5db; /* เส้นแนวตั้งสีเทาอ่อน */
+  text-align: left;
 }
 
 th:last-child,
@@ -1101,7 +1125,6 @@ td:last-child {
 }
 /* สำหรับหัวตารางใน Details Modal */
 .details-modal th {
-  text-align: center; /* จัดข้อความให้อยู่ตรงกลาง */
   padding: 12px 16px;
   background-color: #4f46e5; /* สีพื้นหลังของหัวตาราง */
   color: white; /* สีข้อความ */
@@ -1112,7 +1135,6 @@ td:last-child {
   white-space: nowrap; /* ป้องกันข้อความตัดบรรทัด */
 }
 .details-modal td {
-  text-align: center; /* จัดข้อความให้อยู่ตรงกลาง */
   padding: 10px 12px;
   font-size: 14px;
   color: #4b5563; /* สีข้อความในตาราง */
@@ -1188,8 +1210,6 @@ td:last-child {
   font-weight: bold;
   cursor: pointer;
   border: 2px solid #cfe3f4; /* ขอบฟ้าอ่อน */
-  transition: all 0.3s ease;
-  min-width: 30px;
 }
 
 /* Hover Effect */
@@ -1238,26 +1258,6 @@ button:disabled {
   transform: scale(1.1); /* ขยายเล็กน้อยเมื่อ Hover */
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .pagination-container {
-    flex-wrap: wrap;
-    gap: 4px;
-    padding: 8px;
-  }
-
-  .pagination-button,
-  .pagination-button-first,
-  .pagination-button-last {
-    padding: 6px 12px;
-    font-size: 14px;
-  }
-
-  .icon-size {
-    width: 20px;
-    height: 20px;
-  }
-}
 /* ตัว Search Bar */
 .search-bar {
   display: flex;
@@ -1356,6 +1356,88 @@ button:disabled {
     font-size: 14px;
     padding: 10px;
   }
+
+  .flex-container {
+    flex-direction: column;
+    align-items: stretch; /* ทำให้เต็มความกว้าง */
+    gap: 0.75rem;
+  }
+
+  table, thead, tbody, th, td, tr {
+      display: block;
+    }
+
+    thead {
+      display: none;
+    }
+
+    tr {
+      margin-bottom: 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      border: none;
+    }
+
+    td::before {
+      content: attr(data-label);
+      font-weight: bold;
+      margin-right: 16px;
+      color: #4a5568;
+    }
+
+    td img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .pagination-container {
+      justify-content: center;
+    }
+    input {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .download-btn,
+  .delete-btn,
+  .preview-btn {
+    font-size: 12px;
+    padding: 10px 16px;
+  }
+
+  .table-auto th,
+  .table-auto td {
+    font-size: 12px;
+    padding: 10px;
+  }
+
+  .pagination-container {
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 8px;
+  }
+
+  .pagination-button,
+  .pagination-button-first,
+  .pagination-button-last {
+    padding: 6px 12px;
+    font-size: 10px;
+  }
+
+  .icon-size {
+    width: 20px;
+    height: 20px;
+  }
 }
 /* Responsive สำหรับมือถือขนาดเล็ก */
 @media (max-width: 480px) {
@@ -1380,6 +1462,41 @@ button:disabled {
 
   .search-bar-container {
     width: 100%;
+  }
+  td[data-label="รูปภาพ"] {
+      flex-direction: column;
+      align-items: center;
+    }
+  .table-auto td [data-label="รหัสเครื่องมือเครื่องใช้"] {
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+
+}
+
+    td::before {
+      margin-bottom: 8px;
+    }
+
+    td img {
+      width: 100%;
+      height: auto;
+    }
+    .pagination-container {
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 8px;
+  }
+
+  .pagination-button,
+  .pagination-button-first,
+  .pagination-button-last {
+    padding: 4px 8px;
+    font-size: 14px;
+  }
+
+  .icon-size {
+    width: 20px;
+    height: 20px;
   }
 }
 /* Custom Scrollbar Styling */
@@ -1417,14 +1534,50 @@ button:disabled {
   margin-bottom: 1rem;
 }
 
-/* Responsive สำหรับ Tablet และมือถือ */
-@media (max-width: 768px) {
-  .flex-container {
-    flex-direction: column;
-    align-items: stretch; /* ทำให้เต็มความกว้าง */
-    gap: 0.75rem;
+/* สไตล์พื้นฐานสำหรับตาราง */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
   }
-}
 
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+
+  th {
+    background-color: #f9fafb;
+  }
+  .form-control {
+    margin-bottom: 16px;
+  }
+
+  .input, .textarea, .file-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .input:focus, .textarea:focus, .file-input:focus {
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+    outline: none;
+  }
+
+  .textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  .transition {
+    transition: background-color 0.3s ease;
+  }
 </style>
-

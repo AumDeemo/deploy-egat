@@ -25,11 +25,23 @@ const isImageModalOpen = ref(false); // สถานะเปิด/ปิดโ
 const modalImageUrl = ref(""); // เก็บ URL ของรูปภาพที่เลือก
 const previewImageUrl = ref(null);
 const isSearchModalOpen = ref(false); // สถานะเปิด/ปิด modal ค้นหา
+const dropdownWrapper = ref(null);
+const isDropdownOpen = ref(false);
 
 const fuseOptions = {
   keys: ["name", "partnumber", "category"], // ฟิลด์ที่ต้องการค้นหา
   threshold: 0.5, // ระดับความคลาดเคลื่อน (0 = ตรงทั้งหมด, 1 = ยอมรับได้ทุกระดับ)
   includeScore: true, // แสดงคะแนนความตรง
+};
+
+const toggleDropdown = () => {
+  isDropdownOpen.value = !isDropdownOpen.value;
+};
+
+const handleClickOutside = (event) => {
+  if (dropdownWrapper.value && !dropdownWrapper.value.contains(event.target)) {
+    isDropdownOpen.value = false; // ปิด dropdown
+  }
 };
 
 // ฟังก์ชันสำหรับการเน้นคำค้นหา
@@ -113,17 +125,6 @@ const handleClickOutsideNotification = (event) => {
   }
   isNotificationOpen.value = false; // ปิดแจ้งเตือน
 };
-// เพิ่ม Event Listener เมื่อคอมโพเนนต์ถูก mounted
-onMounted(() => {
-  window.addEventListener("click", handleClickOutsideCategory);
-  window.addEventListener("click", handleClickOutsideNotification);
-});
-
-// ลบ Event Listener เมื่อคอมโพเนนต์ถูก unmounted
-onBeforeUnmount(() => {
-  window.removeEventListener("click", handleClickOutsideCategory);
-  window.removeEventListener("click", handleClickOutsideNotification);
-});
 
 // Modal types
 const MODAL_TYPES = {
@@ -325,7 +326,7 @@ const handleMaterialAction = async () => {
       icon: "success",
       title: "บันทึกรายการสำเร็จ"
     });
-    closeModal();  
+    closeModal();
   } catch (err) {
     console.error(`Error in ${actionType}:`, err);
     // TODO: Add proper error handling (e.g., toast notification)
@@ -408,6 +409,19 @@ const handleDeleteMaterial = async () => {
 
 onMounted(async () => {
   await Promise.all([fetchCategories(), fetchMaterials()]);
+  document.addEventListener('click', handleClickOutside);
+});
+
+// เพิ่ม Event Listener เมื่อคอมโพเนนต์ถูก mounted
+onMounted(() => {
+  window.addEventListener("click", handleClickOutsideCategory);
+  window.addEventListener("click", handleClickOutsideNotification);
+});
+
+// ลบ Event Listener เมื่อคอมโพเนนต์ถูก unmounted
+onBeforeUnmount(() => {
+  window.removeEventListener("click", handleClickOutsideCategory);
+  window.removeEventListener("click", handleClickOutsideNotification);
 });
 
 definePageMeta({
@@ -428,7 +442,7 @@ definePageMeta({
   </div>
   <!-- Notification รายการแจ้งเตือน -->
   <div v-if="isNotificationOpen"
-    class="absolute top-16 right-4 bg-white shadow-lg rounded-xl p-5 w-96 z-50 max-h-96 overflow-y-auto transform transition-all duration-300 select-none"
+    class="absolute notification-container top-16 right-4 bg-white shadow-lg rounded-xl p-5 w-96 z-50 max-h-96 overflow-y-auto transform transition-all duration-300 select-none"
     style="animation: fadeIn 0.3s ease" @click.stop>
     <h3 class="text-lg font-bold mb-4 text-blue-600 border-b pb-2">🔔 รายการแจ้งเตือน</h3>
     <ul>
@@ -572,34 +586,67 @@ definePageMeta({
                           {{ item.totalAmount }}
                         </td>
                         <td data-label="นำเข้า">
-                          <button @click="openModal(MODAL_TYPES.IMPORT, item)"
-                            class="action-btn bg-green-500 hover:bg-green-600">
-                            นำเข้า
-                          </button>
+                          <div @click="openModal(MODAL_TYPES.IMPORT, item)"
+                            class="bg-green-500 hover:bg-green-600 active:bg-green-700 rounded-md h-10 flex gap-1 items-center justify-center cursor-pointer transform transition duration-150 shadow-md hover:shadow-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="#ffffff" viewBox="0 0 24 24" stroke-width="4"
+                              stroke="#ffffff" class="w-4 h-4">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            <p class="text-white font-medium">นำเข้า</p>
+                          </div>
                         </td>
+
                         <td data-label="นำออก">
-                          <button @click="openModal(MODAL_TYPES.EXPORT, item)"
-                            class="action-btn bg-red-500 hover:bg-red-600">
-                            นำออก
-                          </button>
+                          <div @click="openModal(MODAL_TYPES.EXPORT, item)"
+                            class="bg-red-500 hover:bg-red-600 active:bg-red-700 rounded-md h-10 flex gap-1 items-center justify-center cursor-pointer transform transition duration-150 shadow-md hover:shadow-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="#ffffff" viewBox="0 0 24 24" stroke-width="4"
+                              stroke="#ffffff" class="w-4 h-4">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
+                            </svg>
+                            <p class="text-white font-medium">นำออก</p>
+                          </div>
                         </td>
+
                         <td data-label="รายละเอียดการเบิก">
-                          <button @click="openModal(MODAL_TYPES.DETAILS, item)"
-                            class="action-btn bg-blue-500 hover:bg-blue-600">
-                            ข้อมูล
-                          </button>
+                          <div @click="openModal(MODAL_TYPES.DETAILS, item)"
+                            class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 rounded-md h-10 flex gap-1 items-center justify-center cursor-pointer transform transition duration-150 shadow-md hover:shadow-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" class="size-4">
+                              <path fill-rule="evenodd"
+                                d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 0 1 .67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 1 1-.671-1.34l.041-.022ZM12 9a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
+                                clip-rule="evenodd" />
+                            </svg>
+
+                            <p class="text-white font-medium">ข้อมูล</p>
+                          </div>
                         </td>
+
                         <td data-label="แก้ไข">
-                          <button @click="openModal(MODAL_TYPES.EDIT, item)"
-                            class="action-btn bg-orange-400 hover:bg-orange-500">
-                            แก้ไข
-                          </button>
+                          <div @click="openModal(MODAL_TYPES.EDIT, item)"
+                            class="bg-orange-400 hover:bg-orange-500 active:bg-orange-600 rounded-md h-10 flex gap-1 items-center justify-center cursor-pointer transform transition duration-150 shadow-md hover:shadow-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                              class="size-4  text-white">
+                              <path
+                                d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
+                              <path
+                                d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" />
+                            </svg>
+
+                            <p class="text-white font-medium">แก้ไข</p>
+                          </div>
                         </td>
+
                         <td data-label="ลบรายการ">
-                          <button @click="openModal(MODAL_TYPES.DELETE, item)"
-                            class="action-btn bg-red-500 hover:bg-red-600">
-                            ลบ
-                          </button>
+                          <div @click="openModal(MODAL_TYPES.DELETE, item)"
+                            class="bg-red-500 hover:bg-red-600 active:bg-red-700 rounded-md h-10 flex gap-1 items-center justify-center cursor-pointer transform transition duration-150 shadow-md hover:shadow-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                              class="size-4 text-white">
+                              <path fill-rule="evenodd"
+                                d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z"
+                                clip-rule="evenodd" />
+                            </svg>
+
+                            <p class="text-white font-medium">ลบ</p>
+                          </div>
                         </td>
                       </tr>
                       <tr v-if="!searchedMaterials.length">
@@ -651,9 +698,11 @@ definePageMeta({
       <div class="bg-white p-6 rounded-lg shadow-lg">
         <h2 class="text-xl font-bold mb-4 text-black-600 text-center">รายการอะไหล่</h2>
         <div class="flex items-center mb-4 space-x-2">
-          <label for="itemsPerPage" class="text-sm text-gray-600">แสดงจำนวนรายการต่อหน้า:</label>
-          <select id="itemsPerPage" v-model="itemsPerPage"
-            class="p-2 border text-right rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" @change="currentPage = 1">
+        <label for="itemsPerPage" class="text-sm text-gray-600">รายการจำนวนต่อหน้า:</label>
+        <div class="relative w-full">
+          <select id="itemsPerPage" v-model="itemsPerPage" ref="dropdownWrapper"
+            class="w-full text-right p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none pr-10 bg-white"
+            @focus="isDropdownOpen = true" @mousedown="toggleDropdown">
             <option value="10">10</option>
             <option value="20">20</option>
             <option value="30">30</option>
@@ -661,7 +710,18 @@ definePageMeta({
             <option value="100">100</option>
             <option value="">ทั้งหมด</option>
           </select>
+          <!-- ไอคอนลูกศร -->
+          <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="gray"
+              :class="{ 'rotate-180': isDropdownOpen, 'rotate-0': !isDropdownOpen }"
+              class="w-5 h-5 transition-transform duration-300">
+              <path fill-rule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                clip-rule="evenodd" />
+            </svg>
+          </div>
         </div>
+      </div>
         <div class="overflow-x-auto">
           <!-- เพิ่ม container ที่มี scroll -->
           <div class="table-container overflow-y-auto rounded-lg border border-gray-300">
@@ -733,7 +793,8 @@ definePageMeta({
                   <td data-label="แก้ไข">
                     <div @click="openModal(MODAL_TYPES.EDIT, material)"
                       class="bg-orange-400 hover:bg-orange-500 active:bg-orange-600 rounded-md h-10 flex gap-1 items-center justify-center cursor-pointer transform transition duration-150 shadow-md hover:shadow-lg">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                        class="size-4  text-white">
                         <path
                           d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
                         <path
@@ -747,7 +808,8 @@ definePageMeta({
                   <td data-label="ลบรายการ">
                     <div @click="openModal(MODAL_TYPES.DELETE, material)"
                       class="bg-red-500 hover:bg-red-600 active:bg-red-700 rounded-md h-10 flex gap-1 items-center justify-center cursor-pointer transform transition duration-150 shadow-md hover:shadow-lg">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                        class="size-4 text-white">
                         <path fill-rule="evenodd"
                           d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z"
                           clip-rule="evenodd" />
@@ -839,7 +901,12 @@ definePageMeta({
       <!-- Details Modal -->
       <div v-if="modalType === MODAL_TYPES.DETAILS"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white p-6 rounded-lg w-[600px] max-h-[80vh] overflow-auto">
+        <button
+          class="absolute top-[5px] right-[5px] bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:scale-110 z-10"
+          @click="closeModal">
+          ✕
+        </button>
+        <div class="bg-white p-6 rounded-lg w-[600px] max-h-[80vh] overflow-auto mx-4">
           <h2 class="text-xl font-bold mb-4">รายละเอียด {{ selectedMaterial?.name }}</h2>
 
           <div class="space-y-4">
@@ -1061,80 +1128,6 @@ definePageMeta({
   /* เพิ่มระยะห่างจากขอบ */
 }
 
-/* Responsive Table for screens smaller than 768px */
-@media (max-width: 768px) {
-
-  .table,
-  .table thead,
-  .table tbody,
-  .table th,
-  .table td,
-  .table tr {
-    display: block;
-    width: 100%;
-  }
-
-  .table thead {
-    display: none;
-    /* ซ่อนหัวตาราง */
-  }
-
-  .table tr {
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    background-color: #fefefe;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-
-  .table td {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    font-size: 14px;
-    color: #333;
-    text-align: left;
-  }
-
-  .table td::before {
-    content: attr(data-label);
-    font-weight: bold;
-    color: #555;
-    text-transform: capitalize;
-    flex-basis: 40%;
-  }
-
-  .table td div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100px;
-    /* ความกว้างสำหรับจอปกติ */
-  }
-}
-
-/* จอขนาดเล็กกว่า 480px */
-@media (max-width: 480px) {
-  .table td {
-    font-size: 12px;
-    padding: 8px;
-  }
-
-  .table td::before {
-    font-size: 12px;
-    flex-basis: 50%;
-  }
-
-  .table td div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100px;
-    /* ความกว้างสำหรับจอปกติ */
-  }
-}
-
 .table tbody tr:nth-child(odd) {
   background-color: #f9f9f9;
   /* สีพื้นหลังของแถวคี่ */
@@ -1297,18 +1290,6 @@ div[v-if="isNotificationOpen"] {
   animation: fadeIn 0.3s ease;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* หัวข้อ */
 h3 {
   color: #2c3e50;
@@ -1330,18 +1311,6 @@ div[v-if="isNotificationOpen"] {
   animation: fadeIn 0.3s ease;
   /* เพิ่มเอฟเฟกต์แสดง */
   z-index: 50;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* หัวข้อ */
@@ -1467,20 +1436,6 @@ div[v-if="isNotificationOpen"]::-webkit-scrollbar-track {
   /* สี Track เมื่อ Hover */
 }
 
-@media (max-width: 768px) {
-  .table-container {
-    max-height: calc(100vh - 150px);
-    /* ลดขนาดลงสำหรับจอเล็ก */
-  }
-}
-
-@media (max-width: 480px) {
-  .table-container {
-    max-height: calc(100vh - 100px);
-    /* ลดขนาดลงอีกสำหรับมือถือ */
-  }
-}
-
 /* เพิ่มเอฟเฟกต์แบบ Smooth */
 .table-container {
   scroll-behavior: smooth;
@@ -1500,19 +1455,6 @@ button {
 img {
   display: block;
   margin: 0 auto;
-}
-
-/* เอฟเฟกต์แสดงโมดอล */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 
 /* ขอบและเงารูปภาพ */
@@ -1610,68 +1552,6 @@ img[src]:not([alt]) {
   font-size: 1.2rem;
   color: #0047ba;
   padding: 0 0.5rem;
-}
-
-@media (max-width: 1024px) {
-
-  /* แท็บเล็ต */
-  .pagination-container {
-    gap: 6px;
-    padding: 10px;
-  }
-
-  .pagination-button,
-  .pagination-button-first-last {
-    padding: 6px 12px;
-    font-size: 14px;
-  }
-
-  .pagination-active {
-    font-size: 14px;
-    padding: 6px 12px;
-  }
-}
-
-@media (max-width: 768px) {
-
-  /* โทรศัพท์มือถือ */
-  .pagination-container {
-    gap: 4px;
-    padding: 8px;
-  }
-
-  .pagination-button,
-  .pagination-button-first-last {
-    padding: 5px 10px;
-    font-size: 12px;
-  }
-
-  .pagination-active {
-    font-size: 12px;
-    padding: 5px 10px;
-  }
-}
-
-@media (max-width: 480px) {
-
-  /* หน้าจอขนาดเล็กมาก */
-  .pagination-container {
-    flex-wrap: wrap;
-    /* ให้ปุ่มขึ้นบรรทัดใหม่ */
-    gap: 4px;
-    padding: 6px;
-  }
-
-  .pagination-button,
-  .pagination-button-first-last {
-    padding: 4px 8px;
-    font-size: 10px;
-  }
-
-  .pagination-active {
-    font-size: 10px;
-    padding: 4px 8px;
-  }
 }
 
 /* ปุ่มปิด Modal */
@@ -1800,8 +1680,79 @@ img[src]:not([alt]) {
   margin-bottom: 1rem;
 }
 
+
+@media (max-width: 1024px) {
+
+  /* แท็บเล็ต */
+  .pagination-container {
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .pagination-button,
+  .pagination-button-first-last {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+
+  .pagination-active {
+    font-size: 14px;
+    padding: 6px 12px;
+  }
+}
+
 /* Responsive สำหรับ Tablet และมือถือ */
 @media (max-width: 768px) {
+
+  .table,
+  .table thead,
+  .table tbody,
+  .table th,
+  .table td,
+  .table tr {
+    display: block;
+    width: 100%;
+  }
+
+  .table thead {
+    display: none;
+    /* ซ่อนหัวตาราง */
+  }
+
+  .table tr {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    background-color: #fefefe;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+    color: #333;
+    text-align: left;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #555;
+    text-transform: capitalize;
+    flex-basis: 40%;
+  }
+
+  .table td div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    /* ความกว้างสำหรับจอปกติ */
+  }
+
   .flex-container {
     flex-direction: column;
     align-items: stretch;
@@ -1827,6 +1778,28 @@ img[src]:not([alt]) {
   .search-button {
     font-size: 0.9rem;
     padding: 0.3rem 0.6rem;
+  }
+
+  /* โทรศัพท์มือถือ */
+  .pagination-container {
+    gap: 4px;
+    padding: 8px;
+  }
+
+  .pagination-button,
+  .pagination-button-first-last {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  .pagination-active {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .table-container {
+    max-height: calc(100vh - 150px);
+    /* ลดขนาดลงสำหรับจอเล็ก */
   }
 }
 
@@ -1854,6 +1827,117 @@ img[src]:not([alt]) {
   .search-bar-container {
     width: 100%;
   }
+
+  .notification-container {
+    width: 90%;
+    /* ปรับขนาดให้เหมาะกับจอเล็ก */
+    max-width: 320px;
+    /* จำกัดขนาดสูงสุด */
+    right: 5%;
+    /* เลื่อนให้อยู่ตรงกลางมากขึ้น */
+    max-height: 300px;
+    /* จำกัดความสูง */
+    padding: 12px;
+    /* ลด padding */
+  }
+
+  .notification-container h3 {
+    font-size: 14px;
+    /* ลดขนาดหัวข้อ */
+  }
+
+  .notification-container ul {
+    max-height: 250px;
+    /* จำกัดความสูงของรายการ */
+    overflow-y: auto;
+  }
+
+  .notification-container li {
+    padding: 8px;
+    /* ลด Padding */
+    margin-bottom: 6px;
+    /* ลดช่องว่างระหว่างรายการ */
+    font-size: 12px;
+    /* ปรับขนาดตัวอักษร */
+  }
+
+  .notification-badge {
+    width: 24px;
+    /* ปรับขนาดไอคอนแจ้งเตือน */
+    height: 24px;
+    padding: 4px;
+  }
+
+  .notification-badge svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* หน้าจอขนาดเล็กมาก */
+  .pagination-container {
+    flex-wrap: wrap;
+    /* ให้ปุ่มขึ้นบรรทัดใหม่ */
+    gap: 4px;
+    padding: 6px;
+  }
+
+  .pagination-button,
+  .pagination-button-first-last {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  .pagination-active {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+
+  .table-container {
+    max-height: calc(100vh - 100px);
+    /* ลดขนาดลงอีกสำหรับมือถือ */
+  }
+
+  .table td {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .table td::before {
+    font-size: 12px;
+    flex-basis: 50%;
+  }
+
+  .table td div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    /* ความกว้างสำหรับจอปกติ */
+  }
+}
+
+/* เอฟเฟกต์แสดงโมดอล */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
 }
 
 /* ปุ่มเพิ่มรายการ และ ช่องค้นหา แนวนอน */

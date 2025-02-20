@@ -13,11 +13,11 @@
             alt="logo"
             class="w-16"
           />
-          <h1 class="text-2xl font-bold">
+          <h1 class="custom-heading">
             ระบบจัดการข้อมูลเครื่องมือเครื่องใช้ราคาต่ำกว่า 10,000 บาท
           </h1>
         </div>
-        <p class="text-sm">การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย (EGAT)</p>
+        <p class="custom-egat">การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย (EGAT)</p>
       </div>
     </header>
 
@@ -256,6 +256,15 @@ const clearImage = () => {
 .font-prompt {
   font-family: "Prompt", sans-serif !important;
 }
+.custom-heading {
+    font-size: 13px; /* ปรับขนาดฟอนต์ */
+    font-weight: 500; /* ทำให้ฟอนต์หนา */
+    color: #ffffff; /* สีฟอนต์ (ถ้าต้องการ) */
+  }
+  .custom-egat {
+    font-size: 13px;
+    color: #ffffff; 
+  }
 .alert {
   padding: 1rem;
   background-color: #d4edda;
