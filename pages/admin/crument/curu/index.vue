@@ -728,7 +728,11 @@ const closeModal = () => {
 
 onMounted(async () => {
   await fetchCURU();
-  console.log("CURU Data:", CURU.value);
+  document.addEventListener('click', handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
 });
 
 definePageMeta({
